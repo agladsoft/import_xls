@@ -6,7 +6,6 @@ import re
 import sys
 import json
 
-# put git
 month_list = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября",
          "декабря"]
 month_list_upper = [month.upper() for month in month_list]
@@ -34,20 +33,6 @@ def isDigit(x):
         return False
 
 
-def add_value_to_dict(parsed_record, goods_weight, package_number, name_rus, consignment, city, shipper,
-                      shipper_country, consignee,
-                      context):
-    parsed_record['goods_weight'] = float(goods_weight) if goods_weight else None
-    parsed_record['package_number'] = int(float(package_number))
-    parsed_record['goods_name_rus'] = name_rus
-    parsed_record['consignment'] = consignment
-    parsed_record['city'] = city
-    parsed_record['shipper'] = shipper
-    parsed_record['shipper_country'] = shipper_country
-    parsed_record['consignee'] = consignee
-    return merge_two_dicts(context, parsed_record)
-
-
 class OoclCsv(object):
 
     def __init__(self):
@@ -58,15 +43,13 @@ class OoclCsv(object):
         context['terminal'] = os.environ.get('XL_IMPORT_TERMINAL')
         context['parsed_on'] = str(datetime.datetime.now().date())
         parsed_data = list()
-        last_container_number = list()
-        last_container_size = list()
-        last_container_type = list()
         var_name_ship = "ВЫГРУЗКА ГРУЗА С Т/Х "
         with open(input_file_path, newline='') as csvfile:
             lines = list(csv.reader(csvfile))
 
         logging.info(u'lines type is {} and contain {} items'.format(type(lines), len(lines)))
         logging.info(u'First 3 items are: {}'.format(lines[:3]))
+
         for ir, line in enumerate(lines):
             logging.info(u'line {} is {}'.format(ir, line))
             str_list = list(filter(bool, line))
@@ -74,15 +57,15 @@ class OoclCsv(object):
                 logging.info(u"Will parse ship and trip in value '{}'...".format(line[1]))
                 split_on = u'рейс:'
                 logging.info(u"substring to split on is '{}'".format(split_on))
-                ship_and_voyage_str = line[1].replace(var_name_ship, "")
+                ship_and_voyage_str = line[1].strip().replace(var_name_ship, "")
                 ship_and_voyage_list = ship_and_voyage_str.rsplit(' ', 1)
                 context['ship'] = ship_and_voyage_list[0]
-                context['voyage'] = re.sub(r'[^\w\s]', '', ship_and_voyage_list[1])
+                context['voyage'] = re.sub(r'[^\w\s]','', ship_and_voyage_list[1])
                 logging.info(u"context now is {}".format(context))
                 continue
             if ir == 6:
                 try:
-                    logging.info("Will parse date in value {}...".format(line[1].rsplit(': ', 1)[1]))
+                    logging.info("Will parse date in value {}...".format(line[1].rsplit(':  ', 1)[1]))
                     month = line[1].rsplit(':  ', 1)[1].rsplit(' ', 3)
                     if month[1] in month_list:
                         month_digit = month_list.index(month[1]) + 1
@@ -93,45 +76,41 @@ class OoclCsv(object):
                 except:
                     context['date'] = "1970-01-01"
                     continue
-            if ir > 11 and bool(str_list):
+            if ir > 8 and bool(str_list):  # Была на 11 итерация
                 try:
                     logging.info(u"Checking if we are on common line with number...")
-                    parsed_record = dict()
-                    if isDigit(line[1]) or (not line[0] and not line[1] and not line[2] and not line[3]):
-                        try:
-                            container_size_and_type = re.findall("\w{2}", line[2])
-                            parsed_record['container_size'] = int(float(container_size_and_type[0]))
-                            parsed_record['container_type'] = container_size_and_type[1]
-                            parsed_record['container_number'] = line[3]
-                            last_container_number.append(line[3])
-                            last_container_size.append(container_size_and_type[0])
-                            last_container_type.append(container_size_and_type[1])
-                            record = add_value_to_dict(parsed_record, line[7], line[8], line[9].strip(),
-                                                       line[13].strip(),
-                                                       line[14].strip(),
-                                                       line[10].strip(), line[11].strip(),
-                                                       line[12].strip(), context)
-                            logging.info(u"record is {}".format(record))
-                            parsed_data.append(record)
-                        except IndexError:
-                            parsed_record['container_size'] = last_container_size[-1]
-                            parsed_record['container_type'] = last_container_type[-1]
-                            record = add_value_to_dict(parsed_record, line[7], line[8], line[9].strip(),
-                                                       line[13].strip(),
-                                                       line[14].strip(),
-                                                       line[10].strip(), line[11].strip(),
-                                                       line[12].strip(), context)
-                            logging.info(u"record is {}".format(record))
-                            parsed_data.append(record)
+                    range_id = line[0:2]
+                    match_id = [isDigit(id) for id in range_id]
+                    add_id = match_id.index(True)
+                    line_id = str(float(range_id[add_id]))
+                    if isDigit(line_id):
+                        logging.info(u"Ok, line looks common...")
+                        parsed_record = dict()
+                        parsed_record['container_number'] = line[add_id + 2].strip()
+                        container_size_and_type = re.findall("\w{2}", line[add_id + 1].strip())
+                        parsed_record['container_size'] = int(float(container_size_and_type[0]))
+                        parsed_record['container_type'] = container_size_and_type[1]
+                        parsed_record['goods_weight'] = float(line[add_id + 6]) if line[add_id + 6] else None
+                        parsed_record['package_number'] = int(float(line[add_id + 7]))
+                        parsed_record['goods_name_rus'] = line[add_id + 8].strip()
+                        parsed_record['shipper'] = line[add_id + 9].strip()
+                        parsed_record['shipper_country'] = line[add_id + 10].strip()
+                        parsed_record['consignee'] = line[add_id + 11].strip()
+                        parsed_record['consignment'] = line[add_id + 12].strip()
+                        parsed_record['city'] = line[add_id + 13].strip()
+                        record = merge_two_dicts(context, parsed_record)
+                        logging.info(u"record is {}".format(record))
+                        parsed_data.append(record)
                 except Exception as ex:
                     continue
 
         logging.error(u"About to write parsed_data to output: {}".format(parsed_data))
+        # outputStream.write(bytearray(json.dumps(parsed_data, indent=4).encode('utf-8')))
         return parsed_data
 
 
-# dir_name = "/home/timur/PycharmWork/PORT_LINE_CSV/НУТЭП - ноябрь/ADMIRAL/csv/"
-# input_file_path = "ADMIRAL SUN от 11.11.21.XLS.csv"
+# dir_name = 'НУТЭП - ноябрь/ADMIRAL/csv/'
+# input_file_path = 'ADMIRAL SUN от 11.11.21.XLS.csv'
 input_file_path = os.path.abspath(sys.argv[1])
 output_folder = sys.argv[2]
 basename = os.path.basename(input_file_path)
@@ -143,4 +122,3 @@ parsed_data = OoclCsv().process(input_file_path)
 
 with open(output_file_path, 'w', encoding='utf-8') as f:
     json.dump(parsed_data, f, ensure_ascii=False, indent=4)
-

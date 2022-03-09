@@ -1,0 +1,10 @@
+1. 
+export XL_IDP_ROOT=/home/ruscon/sambashare/import
+
+2.
+export XL_IMPORT_TERMINAL=nle
+OR
+export XL_IMPORT_TERMINAL=nutep
+
+3.
+while true; do ./_all.sh; done
