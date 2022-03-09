@@ -6,7 +6,7 @@ import re
 import sys
 import json
 
-# put git
+# pull git
 month_list = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября",
          "декабря"]
 month_list_upper = [month.upper() for month in month_list]
