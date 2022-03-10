@@ -77,32 +77,30 @@ class OoclCsv(object):
                     context['date'] = "1970-01-01"
                     continue
             if ir > 8 and bool(str_list):  # Была на 11 итерация
-                try:
-                    logging.info(u"Checking if we are on common line with number...")
-                    range_id = line[0:2]
-                    match_id = [isDigit(id) for id in range_id]
-                    add_id = match_id.index(True)
-                    line_id = str(float(range_id[add_id]))
-                    if isDigit(line_id):
+                logging.info(u"Checking if we are on common line with number...")
+                line_id = re.match('\d{1,4}', line[1])
+                if bool(line_id):
+                    try:
                         logging.info(u"Ok, line looks common...")
                         parsed_record = dict()
-                        parsed_record['container_number'] = line[add_id + 2].strip()
-                        container_size_and_type = re.findall("\w{2}", line[add_id + 1].strip())
+                        parsed_record['container_number'] = line[3].strip()
+                        container_size_and_type = re.findall("\w{2}", line[2].strip())
                         parsed_record['container_size'] = int(float(container_size_and_type[0]))
                         parsed_record['container_type'] = container_size_and_type[1]
-                        parsed_record['goods_weight'] = float(line[add_id + 6]) if line[add_id + 6] else None
-                        parsed_record['package_number'] = int(float(line[add_id + 7]))
-                        parsed_record['goods_name_rus'] = line[add_id + 8].strip()
-                        parsed_record['shipper'] = line[add_id + 9].strip()
-                        parsed_record['shipper_country'] = line[add_id + 10].strip()
-                        parsed_record['consignee'] = line[add_id + 11].strip()
-                        parsed_record['consignment'] = line[add_id + 12].strip()
-                        parsed_record['city'] = line[add_id + 13].strip()
+                        parsed_record['goods_weight'] = float(line[7]) if line[7] else None
+                        parsed_record['package_number'] = int(float(line[8]))
+                        parsed_record['goods_name_rus'] = line[9].strip()
+                        parsed_record['shipper'] = line[10].strip()
+                        parsed_record['shipper_country'] = line[11].strip()
+                        parsed_record['consignee'] = line[12].strip()
+                        parsed_record['consignment'] = line[13].strip()
+                        parsed_record['city'] = line[14].strip()
                         record = merge_two_dicts(context, parsed_record)
                         logging.info(u"record is {}".format(record))
                         parsed_data.append(record)
-                except Exception as ex:
-                    continue
+                    except:
+                        logging.info(u" Ошибка (не записал строку) - {}".format(line))
+                        continue
 
         logging.error(u"About to write parsed_data to output: {}".format(parsed_data))
         # outputStream.write(bytearray(json.dumps(parsed_data, indent=4).encode('utf-8')))

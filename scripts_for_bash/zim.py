@@ -33,6 +33,20 @@ def isDigit(x):
         return False
 
 
+def add_value_to_dict(parsed_record, goods_weight, package_number, name_rus, consignment, city, shipper,
+                      shipper_country, consignee,
+                      context):
+    parsed_record['goods_weight'] = float(goods_weight) if goods_weight else None
+    parsed_record['package_number'] = int(float(package_number))
+    parsed_record['goods_name_rus'] = name_rus
+    parsed_record['consignment'] = consignment
+    parsed_record['city'] = city
+    parsed_record['shipper'] = shipper
+    parsed_record['shipper_country'] = shipper_country
+    parsed_record['consignee'] = consignee
+    return merge_two_dicts(context, parsed_record)
+
+
 class OoclCsv(object):
 
     def __init__(self):
@@ -79,28 +93,31 @@ class OoclCsv(object):
             if ir > 8 and bool(str_list):  # Была на 11 итерация
                 try:
                     logging.info(u"Checking if we are on common line with number...")
-                    range_id = line[0:2]
-                    match_id = [isDigit(id) for id in range_id]
-                    add_id = match_id.index(True)
-                    line_id = str(float(range_id[add_id]))
-                    if isDigit(line_id):
-                        logging.info(u"Ok, line looks common...")
-                        parsed_record = dict()
-                        parsed_record['container_number'] = line[add_id + 2].strip()
-                        container_size_and_type = re.findall("\w{2}", line[add_id + 1])
-                        parsed_record['container_size'] = int(float(container_size_and_type[0]))
-                        parsed_record['container_type'] = container_size_and_type[1]
-                        parsed_record['goods_weight'] = float(line[add_id + 6]) if line[add_id + 6] else None
-                        parsed_record['package_number'] = int(float(line[add_id + 7]))
-                        parsed_record['goods_name_rus'] = line[add_id + 8].strip()
-                        parsed_record['consignment'] = line[add_id + 12].strip()
-                        parsed_record['city'] = line[add_id + 13].strip()
-                        parsed_record['shipper'] = line[add_id + 9].strip()
-                        parsed_record['shipper_country'] = line[add_id + 10].strip()
-                        parsed_record['consignee'] = line[add_id + 11].strip()
-                        record = merge_two_dicts(context, parsed_record)
-                        logging.info(u"record is {}".format(record))
-                        parsed_data.append(record)
+                    parsed_record = dict()
+                    if isDigit(line[1]) or (not line[0] and not line[1] and not line[2] and not line[3]):
+                        try:
+                            container_size_and_type = re.findall("\w{2}", line[2])
+                            parsed_record['container_size'] = int(float(container_size_and_type[0]))
+                            parsed_record['container_type'] = container_size_and_type[1]
+                            parsed_record['container_number'] = line[3]
+                            record = add_value_to_dict(parsed_record, line[7], line[8], line[9].strip(),
+                                                       line[13].strip(),
+                                                       line[14].strip(),
+                                                       line[10].strip(), line[11].strip(),
+                                                       line[12].strip(), context)
+                            logging.info(u"record is {}".format(record))
+                            parsed_data.append(record)
+                        except IndexError:
+                            parsed_record['container_size'] = line[2]
+                            parsed_record['container_type'] = line[2]
+                            parsed_record['container_number'] = line[3]
+                            record = add_value_to_dict(parsed_record, line[7], line[8], line[9].strip(),
+                                                       line[13].strip(),
+                                                       line[14].strip(),
+                                                       line[10].strip(), line[11].strip(),
+                                                       line[12].strip(), context)
+                            logging.info(u"record is {}".format(record))
+                            parsed_data.append(record)
                 except Exception as ex:
                     continue
 

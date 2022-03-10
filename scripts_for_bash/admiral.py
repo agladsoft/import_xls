@@ -103,9 +103,6 @@ class OoclCsv(object):
                             parsed_record['container_size'] = int(float(container_size_and_type[0]))
                             parsed_record['container_type'] = container_size_and_type[1]
                             parsed_record['container_number'] = line[3]
-                            last_container_number.append(line[3])
-                            last_container_size.append(container_size_and_type[0])
-                            last_container_type.append(container_size_and_type[1])
                             record = add_value_to_dict(parsed_record, line[7], line[8], line[9].strip(),
                                                        line[13].strip(),
                                                        line[14].strip(),
@@ -114,8 +111,9 @@ class OoclCsv(object):
                             logging.info(u"record is {}".format(record))
                             parsed_data.append(record)
                         except IndexError:
-                            parsed_record['container_size'] = last_container_size[-1]
-                            parsed_record['container_type'] = last_container_type[-1]
+                            parsed_record['container_size'] = line[2]
+                            parsed_record['container_type'] = line[2]
+                            parsed_record['container_number'] = line[3]
                             record = add_value_to_dict(parsed_record, line[7], line[8], line[9].strip(),
                                                        line[13].strip(),
                                                        line[14].strip(),
@@ -140,7 +138,23 @@ print("output_file_path is {}".format(output_file_path))
 
 
 parsed_data = OoclCsv().process(input_file_path)
+parsed_data_2 = list()
+context = dict()
+list_last_value = dict()
+for line in reversed(parsed_data):
+    keys_list = list(line.keys())
+    values_list = list(line.values())
+    parsed_record = dict()
+    for key, value in zip(keys_list, values_list):
+        if value == '':
+            context[key] = list_last_value[key]
+        else:
+            parsed_record[key] = value
+        record = merge_two_dicts(context, parsed_record)
+        if value != '':
+            list_last_value[key] = value
 
+    parsed_data_2.append(record)
 with open(output_file_path, 'w', encoding='utf-8') as f:
-    json.dump(parsed_data, f, ensure_ascii=False, indent=4)
+    json.dump(parsed_data_2, f, ensure_ascii=False, indent=4)
 
