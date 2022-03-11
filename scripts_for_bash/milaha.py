@@ -57,7 +57,12 @@ class OoclCsv(object):
                 logging.info(u"Will parse ship and trip in value '{}'...".format(line[1]))
                 split_on = u'рейс:'
                 logging.info(u"substring to split on is '{}'".format(split_on))
-                ship_and_voyage_str = line[1].strip().replace(var_name_ship, "")
+
+                range_voyage = line[0:2]
+                match_voyage = [bool(voyage) for voyage in range_voyage]
+                add_voyage = match_voyage.index(True)
+
+                ship_and_voyage_str = line[add_id].strip().replace(var_name_ship, "")
                 ship_and_voyage_list = ship_and_voyage_str.rsplit(' ', 1)
                 context['ship'] = ship_and_voyage_list[0]
                 context['voyage'] = re.sub(r'[^\w\s]','', ship_and_voyage_list[1])
@@ -65,8 +70,8 @@ class OoclCsv(object):
                 continue
             if ir == 6:
                 try:
-                    logging.info("Will parse date in value {}...".format(line[1].rsplit(':  ', 1)[1]))
-                    month = line[1].rsplit(':  ', 1)[1].rsplit(' ', 3)
+                    logging.info("Will parse date in value {}...".format(line[add_id].rsplit(':  ', 1)[1]))
+                    month = line[add_id].rsplit(':  ', 1)[1].rsplit(' ', 3)
                     if month[1] in month_list:
                         month_digit = month_list.index(month[1]) + 1
                     date = datetime.datetime.strptime(month[2] + '-' + str(month_digit) + '-' + month[0], "%Y-%m-%d")
@@ -86,27 +91,67 @@ class OoclCsv(object):
                     if isDigit(line_id):
                         logging.info(u"Ok, line looks common...")
                         parsed_record = dict()
-                        parsed_record['container_number'] = line[add_id + 2].strip()
-                        container_size_and_type = re.findall("\w{2}", line[add_id + 1].strip())
+                        parsed_record['container_number'] = line[add_id + 2]
+                        container_size_and_type = re.findall("\w{2}", line[add_id + 1])
                         parsed_record['container_size'] = int(float(container_size_and_type[0]))
                         parsed_record['container_type'] = container_size_and_type[1]
-                        parsed_record['goods_weight'] = float(line[add_id + 6]) if line[add_id + 6] else None
-                        parsed_record['package_number'] = int(float(line[add_id + 7]))
-                        parsed_record['goods_name_rus'] = line[add_id + 8].strip()
-                        parsed_record['consignment'] = line[add_id + 12].strip()
-                        parsed_record['city'] = line[add_id + 13].strip()
-                        parsed_record['shipper'] = line[add_id + 9].strip()
-                        parsed_record['shipper_country'] = line[add_id + 10].strip()
-                        parsed_record['consignee'] = line[add_id + 11].strip()
-                        record = merge_two_dicts(context, parsed_record)
-                        logging.info(u"record is {}".format(record))
-                        parsed_data.append(record)
+                        if line[4 - add_id]:
+                            parsed_record['goods_weight'] = float(line[add_id + 5]) if line[add_id + 5] else None
+                            parsed_record['package_number'] = int(float(line[add_id + 6])) if line[add_id + 6] else None
+                            parsed_record['goods_name_rus'] = line[add_id + 7]
+                            parsed_record['consignment'] = line[add_id + 11]
+                            parsed_record['city'] = line[add_id + 12]
+                            parsed_record['shipper'] = line[add_id + 8]
+                            parsed_record['shipper_country'] = line[add_id + 9]
+                            parsed_record['consignee'] = line[add_id + 10]
+                            record = merge_two_dicts(context, parsed_record)
+                            logging.info(u"record is {}".format(record))
+                            parsed_data.append(record)
+                        else:
+                            parsed_record['goods_weight'] = float(line[add_id + 6]) if line[add_id + 6] else None
+                            parsed_record['package_number'] = int(float(line[add_id + 7])) if line[add_id + 7] else None
+                            parsed_record['goods_name_rus'] = line[add_id + 8]
+                            parsed_record['consignment'] = line[add_id + 12]
+                            parsed_record['city'] = line[add_id + 13]
+                            parsed_record['shipper'] = line[add_id + 9]
+                            parsed_record['shipper_country'] = line[add_id + 10]
+                            parsed_record['consignee'] = line[add_id + 11]
+                            record = merge_two_dicts(context, parsed_record)
+                            logging.info(u"record is {}".format(record))
+                            parsed_data.append(record)
                 except Exception as ex:
+                    if not line[add_voyage + 0] and not line[add_voyage + 1] and not line[add_voyage + 2] and line[
+                        add_voyage + 4] \
+                            and line[add_voyage + 5]:
+                        if line[4 - add_id]:
+                            parsed_record['goods_weight'] = float(line[add_id + 5]) if line[add_id + 5] else None
+                            parsed_record['package_number'] = int(float(line[add_id + 6])) if line[add_id + 6] else None
+                            parsed_record['goods_name_rus'] = line[add_id + 7]
+                            parsed_record['consignment'] = line[add_id + 11]
+                            parsed_record['city'] = line[add_id + 12]
+                            parsed_record['shipper'] = line[add_id + 8]
+                            parsed_record['shipper_country'] = line[add_id + 9]
+                            parsed_record['consignee'] = line[add_id + 10]
+                            record = merge_two_dicts(context, parsed_record)
+                            logging.info(u"record is {}".format(record))
+                            parsed_data.append(record)
+                        else:
+                            parsed_record['goods_weight'] = float(line[add_id + 6]) if line[add_id + 6] else None
+                            parsed_record['package_number'] = int(float(line[add_id + 7])) if line[add_id + 7] else None
+                            parsed_record['goods_name_rus'] = line[add_id + 8]
+                            parsed_record['consignment'] = line[add_id + 12]
+                            parsed_record['city'] = line[add_id + 13]
+                            parsed_record['shipper'] = line[add_id + 9]
+                            parsed_record['shipper_country'] = line[add_id + 10]
+                            parsed_record['consignee'] = line[add_id + 11]
+                            record = merge_two_dicts(context, parsed_record)
+                            logging.info(u"record is {}".format(record))
+                            parsed_data.append(record)
                     continue
 
-        logging.error(u"About to write parsed_data to output: {}".format(parsed_data))
-        # outputStream.write(bytearray(json.dumps(parsed_data, indent=4).encode('utf-8')))
-        return parsed_data
+            logging.error(u"About to write parsed_data to output: {}".format(parsed_data))
+            # outputStream.write(bytearray(json.dumps(parsed_data, indent=4).encode('utf-8')))
+            return parsed_data
 
 
 # dir_name = "/home/timur/PycharmWork/PORT_LINE_CSV/НУТЭП - ноябрь/MILAHA/csv/"
