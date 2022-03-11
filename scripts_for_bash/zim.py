@@ -152,6 +152,5 @@ for line in parsed_data:
 
     parsed_data_2.append(record)
 
-print(len(parsed_data_2))
 with open(output_file_path, 'w', encoding='utf-8') as f:
     json.dump(parsed_data_2, f, ensure_ascii=False, indent=4)
