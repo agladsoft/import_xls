@@ -134,6 +134,24 @@ print("output_file_path is {}".format(output_file_path))
 
 
 parsed_data = OoclCsv().process(input_file_path)
+parsed_data_2 = list()
+context = dict()
+list_last_value = dict()
+for line in parsed_data:
+    keys_list = list(line.keys())
+    values_list = list(line.values())
+    parsed_record = dict()
+    for key, value in zip(keys_list, values_list):
+        if value == '':
+            context[key] = list_last_value[key]
+        else:
+            parsed_record[key] = value
+        record = merge_two_dicts(context, parsed_record)
+        if value != '':
+            list_last_value[key] = value
 
+    parsed_data_2.append(record)
+
+print(len(parsed_data_2))
 with open(output_file_path, 'w', encoding='utf-8') as f:
-    json.dump(parsed_data, f, ensure_ascii=False, indent=4)
+    json.dump(parsed_data_2, f, ensure_ascii=False, indent=4)
