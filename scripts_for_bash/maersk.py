@@ -112,5 +112,4 @@ with open(output_file_path, 'w', encoding='utf-8') as f:
     for ir, row in enumerate(parsed_data):
         if row['goods_name_rus']:
             parsed_data_2.append(row)
-    print(len(parsed_data_2))
     json.dump(parsed_data_2, f, ensure_ascii=False, indent=4)
