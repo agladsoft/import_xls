@@ -91,9 +91,10 @@ class OoclCsv(object):
                         logging.info(u"Ok, line looks common...")
                         parsed_record = dict()
                         parsed_record['container_number'] = line[add_id + 2]
-                        container_size_and_type = re.findall("\w{2}", line[add_id + 1])
-                        parsed_record['container_size'] = int(float(container_size_and_type[0]))
-                        parsed_record['container_type'] = container_size_and_type[1]
+                        container_size = re.findall("\d{2}", line[add_id + 1].strip())[0]
+                        container_type = re.findall("[A-Z a-z]{1,3}", line[add_id + 1].strip())[0]
+                        parsed_record['container_size'] = container_size
+                        parsed_record['container_type'] = container_type
                         if line[4 - add_id]:
                             parsed_record['goods_weight'] = float(line[add_id + 5]) if line[add_id + 5] else None
                             parsed_record['package_number'] = int(float(line[add_id + 6])) if line[add_id + 6] else None
@@ -161,6 +162,6 @@ print("output_file_path is {}".format(output_file_path))
 
 
 parsed_data = OoclCsv().process(input_file_path)
-print(len(parsed_data))
+
 with open(output_file_path, 'w', encoding='utf-8') as f:
     json.dump(parsed_data, f, ensure_ascii=False, indent=4)

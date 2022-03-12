@@ -96,9 +96,10 @@ class OoclCsv(object):
                     parsed_record = dict()
                     if isDigit(line[1]) or (not line[0] and not line[1] and not line[2] and not line[3]):
                         try:
-                            container_size_and_type = re.findall("\w{2}", line[2])
-                            parsed_record['container_size'] = int(float(container_size_and_type[0]))
-                            parsed_record['container_type'] = container_size_and_type[1]
+                            container_size = re.findall("\d{2}", line[2].strip())[0]
+                            container_type = re.findall("[A-Z a-z]{1,3}", line[2].strip())[0]
+                            parsed_record['container_size'] = container_size
+                            parsed_record['container_type'] = container_type
                             parsed_record['container_number'] = line[3]
                             record = add_value_to_dict(parsed_record, line[7], line[8], line[9].strip(),
                                                        line[13].strip(),

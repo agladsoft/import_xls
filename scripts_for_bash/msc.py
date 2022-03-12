@@ -40,7 +40,7 @@ def add_data_to_parced(parsed_data, line, context, num1, num2):
     if isDigit(line_id):
         logging.info(u"Ok, line looks common...")
         parsed_record = {'container_number': line[add_id + 1].strip()}
-        container_size_and_type = re.findall("\w{2}", line[add_id + 2].strip())
+        container_size_and_type = re.findall("\w{1,2}", line[add_id + 2].strip())
         parsed_record['container_size'] = int(float(container_size_and_type[0]))
         parsed_record['container_type'] = container_size_and_type[1]
         parsed_record['goods_weight'] = max_numbers(line[add_id + 7].replace(' ', ''))
