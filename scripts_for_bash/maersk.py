@@ -70,10 +70,9 @@ class OoclCsv(object):
                     elif true_line == (False, False, True, True, True, False) or true_line == (False, False, False, True,
                                                                                         True, False):
                         parsed_record['container_number'] = line[3].strip()
-                        container_size = re.findall("\d{2}", line[5].strip())
-                        container_type = re.findall("[A-Z a-z]{1,3}", line[5].strip())
-                        parsed_record['container_size'] = container_size
-                        parsed_record['container_type'] = container_type
+                        container_size_and_type = re.findall("\w{2}", line[5].strip())
+                        parsed_record['container_size'] = int(float(container_size_and_type[0]))
+                        parsed_record['container_type'] = container_size_and_type[1]
                         parsed_record['goods_weight'] = float(line[10]) if line[10] else None
                         parsed_record['package_number'] = line[11].strip()
 
