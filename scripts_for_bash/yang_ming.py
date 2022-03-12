@@ -132,8 +132,8 @@ class OoclCsv(object):
                     except:
                         continue
 
-            logging.error(u"About to write parsed_data to output: {}".format(parsed_data))
-            return parsed_data
+        logging.error(u"About to write parsed_data to output: {}".format(parsed_data))
+        return parsed_data
 
 
 input_file_path = os.path.abspath(sys.argv[1])

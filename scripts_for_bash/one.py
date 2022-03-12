@@ -122,9 +122,9 @@ class OoclCsv(object):
                 except Exception as ex:
                     continue
 
-            logging.error(u"About to write parsed_data to output: {}".format(parsed_data))
-            # outputStream.write(bytearray(json.dumps(parsed_data, indent=4).encode('utf-8')))
-            return parsed_data
+        logging.error(u"About to write parsed_data to output: {}".format(parsed_data))
+        # outputStream.write(bytearray(json.dumps(parsed_data, indent=4).encode('utf-8')))
+        return parsed_data
 
 
 input_file_path = os.path.abspath(sys.argv[1])
