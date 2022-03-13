@@ -19,15 +19,3 @@ do
     mv "${file}" "${done_path}"
     mv "${csv_name}" "${done_path}"
 done
-
-for file in "${xls_path}"/*.XLS*;
-do
-    echo "'${file}'";
-    csv_name="${xls_path}/csv/$(basename "${file}").csv"
-    echo "Will convert Excel '${file}' to CSV '${csv_name}'"
-    in2csv "${file}" > "${csv_name}"
-    python3 ../scripts_for_bash/"yang_ming.py" "${csv_name}" "${xls_path}"/json
-
-    mv "${file}" "${done_path}"
-    mv "${csv_name}" "${done_path}"
-done
