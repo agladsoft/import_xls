@@ -9,7 +9,7 @@ mkdir "${xls_path}"/json
 done_path="${xls_path}"/done
 mkdir "${done_path}"
 
-for file in "${xls_path}"/*.xls*;
+find "${xls_path}" -maxdepth 1 -type f \( -name "*.xls*" -or -name "*.XLS*" \) ! -newermt '5 seconds ago' -print0 | while read -d $'\0' file
 do
     echo "'${file}'";
     csv_name="${xls_path}/csv/$(basename "${file}").csv"
