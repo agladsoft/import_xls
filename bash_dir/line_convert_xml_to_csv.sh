@@ -9,7 +9,7 @@ mkdir "${xls_path}"/json
 done_path="${xls_path}"/done
 mkdir "${done_path}"
 
-for file in "${xls_path}"/*.xml;
+find "${xls_path}" -maxdepth 1 -type f -name "*.xml" ! -newermt '3 seconds ago' -print0 | while read -d $'\0' file
 do
     python3 ../scripts_for_bash/"convert_xml_to_csv.py" "${file}" "${xls_path}/from_xml_to_csv/$(basename "${file}")"
     csv_name="${xls_path}/from_xml_to_csv/$(basename "${file}").csv"
