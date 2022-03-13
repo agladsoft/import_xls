@@ -1,7 +1,6 @@
 echo ${XL_IDP_ROOT}
 xls_path="${XL_IDP_ROOT}/lines_${XL_IMPORT_TERMINAL}/akkon_lines/"
 echo $xls_path
-
 # xls_path=/home/ruscon/Import_xls/НУТЭП\ -\ ноябрь/AKKON\ LINES/
 mkdir "${xls_path}"/csv
 mkdir "${xls_path}"/json
@@ -9,7 +8,7 @@ mkdir "${xls_path}"/json
 done_path="${xls_path}"/done
 mkdir "${done_path}"
 
-for file in "${xls_path}"/*.xls*;
+find "${xls_path}" -maxdepth 1 -type f \( -name "*.xls*" -or -name "*.XLS*" \) ! -newermt '3 seconds ago' -print0 | while read -d $'\0' file
 do
     echo "'${file}'";
     csv_name="${xls_path}/csv/$(basename "${file}").csv"
