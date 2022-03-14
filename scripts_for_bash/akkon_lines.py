@@ -58,9 +58,12 @@ class OoclCsv(object):
                 logging.info(u"Will parse ship and trip in value '{}'...".format(line[4]))
                 split_on = u'рейс:'
                 logging.info(u"substring to split on is '{}'".format(split_on))
-                ship_and_voyage_list = line[4].rsplit(' ', 1)
-                context['ship'] = ship_and_voyage_list[0]
-                context['voyage'] = re.sub(r'[^\w\s]','', ship_and_voyage_list[1])
+                ship_and_voyage_list = line[4].strip().rsplit(' ', 1)
+                context['ship'] = ship_and_voyage_list[0].strip()
+                try:
+                    context['voyage'] = re.sub(r'[^\w\s]','', ship_and_voyage_list[1])
+                except IndexError:
+                    context['voyage'] = line[5]
                 logging.info(u"context now is {}".format(context))
                 continue
             if ir == 5:
@@ -68,7 +71,6 @@ class OoclCsv(object):
                     logging.info("Will parse date in value {}...".format(line[0].rsplit(': ', 1)[1]))
                     month = line[0].rsplit(': ', 1)[1].rsplit(' ', 3)
                     if month[1] in month_list_upper:
-                        print(month_list_upper.index(month[1]) + 1)
                         month_digit = month_list_upper.index(month[1]) + 1
                     date = datetime.datetime.strptime(month[2] + '-' + str(month_digit) + '-' + month[0], "%Y-%m-%d")
                     context['date'] = str(date.date())
@@ -109,8 +111,8 @@ class OoclCsv(object):
         return parsed_data
 
 
-# dir_name = '/home/timur/PycharmWork/PORT_LINE_CSV/НУТЭП - ноябрь/AKKON LINES/csv/'
-# input_file_path = 'Копия ПЕЧАТНАЯ РАЗНАРЯДКА 0321.xlsx.csv'
+# input_file_path = '/home/timur/Anton_project/import_xls-master/НУТЭП - ноябрь/AKKON LINES/csv/Копия ПЕЧАТНАЯ РАЗНАРЯДКА ELBE от 04.02.22.xlsx.csv'
+# output_folder = '/home/timur/Anton_project/import_xls-master/НУТЭП - ноябрь/AKKON LINES/json'
 input_file_path = os.path.abspath(sys.argv[1])
 output_folder = sys.argv[2]
 basename = os.path.basename(input_file_path)
@@ -119,6 +121,6 @@ print("output_file_path is {}".format(output_file_path))
 
 
 parsed_data = OoclCsv().process(input_file_path)
-
+print(len(parsed_data))
 with open(output_file_path, 'w', encoding='utf-8') as f:
     json.dump(parsed_data, f, ensure_ascii=False, indent=4)
