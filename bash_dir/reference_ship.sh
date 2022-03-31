@@ -1,4 +1,3 @@
-#xls_path=/home/timur/Anton_project/import_xls-master/НУТЭП\ -\ ноябрь/reference_ship
 echo ${XL_IDP_ROOT}
 xls_path="${XL_IDP_ROOT}/reference_ship/"
 echo $xls_path
