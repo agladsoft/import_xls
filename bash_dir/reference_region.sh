@@ -8,7 +8,6 @@ mkdir "${xls_path}"/json
 done_path="${xls_path}"/done
 mkdir "${done_path}"
 
-
 for file in "${xls_path}"/*.xls*;
 do
     echo "'${file}'";
