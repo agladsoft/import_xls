@@ -4,6 +4,7 @@ import os
 import logging
 import sys
 import json
+from dateutil.relativedelta import relativedelta
 
 if not os.path.exists("logging"):
     os.mkdir("logging")
@@ -49,7 +50,7 @@ class OoclCsv(object):
     def process(self, input_file_path):
         context = dict(line="lider_line")
         context["terminal"] = os.environ.get('XL_IMPORT_TERMINAL')
-        context['parsed_on'] = str(datetime.datetime.now().date())
+        context['parsed_on'] = str(datetime.datetime.now().date() - relativedelta(months=1))
         parsed_data = list()
         last_container_number = list()
         last_container_size = list()
@@ -120,5 +121,11 @@ print("output_file_path is {}".format(output_file_path))
 
 parsed_data = OoclCsv().process(input_file_path)
 
+
 with open(output_file_path, 'w', encoding='utf-8') as f:
     json.dump(parsed_data, f, ensure_ascii=False, indent=4)
+
+set_container = set()
+for container in range(len(parsed_data)):
+    set_container.add(parsed_data[container]['container_number'])
+print(len(set_container))

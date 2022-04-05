@@ -5,14 +5,12 @@ import logging
 import re
 import sys
 import json
+from dateutil.relativedelta import relativedelta
 
-
-# pull git
 month_list = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября",
          "декабря"]
 month_list_upper = [month.upper() for month in month_list]
 month_list_title = [month.title() for month in month_list]
-# month_list = month_list_upper + month_list + month_list_title
 
 if not os.path.exists("logging"):
     os.mkdir("logging")
@@ -43,7 +41,7 @@ class OoclCsv(object):
     def process(self, input_file_path):
         context = dict(line=os.path.basename(__file__).replace(".py", ""))
         context['terminal'] = os.environ.get('XL_IMPORT_TERMINAL')
-        context['parsed_on'] = str(datetime.datetime.now().date())
+        context['parsed_on'] = str(datetime.datetime.now().date() - relativedelta(months=1))
         parsed_data = list()
         with open(input_file_path, newline='') as csvfile:
             lines = list(csv.reader(csvfile))
@@ -121,6 +119,12 @@ print("output_file_path is {}".format(output_file_path))
 
 
 parsed_data = OoclCsv().process(input_file_path)
-print(len(parsed_data))
+
+
 with open(output_file_path, 'w', encoding='utf-8') as f:
     json.dump(parsed_data, f, ensure_ascii=False, indent=4)
+
+set_container = set()
+for container in range(len(parsed_data)):
+    set_container.add(parsed_data[container]['container_number'])
+print(len(set_container))

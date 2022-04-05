@@ -5,6 +5,7 @@ import logging
 import re
 import sys
 import json
+from dateutil.relativedelta import relativedelta
 
 month_list = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября",
          "декабря"]
@@ -41,7 +42,7 @@ class OoclCsv(object):
     def process(self, input_file_path):
         context = dict(line=os.path.basename(__file__).replace(".py", ""))
         context['terminal'] = os.environ.get('XL_IMPORT_TERMINAL')
-        context['parsed_on'] = str(datetime.datetime.now().date())
+        context['parsed_on'] = str(datetime.datetime.now().date() - relativedelta(months=1))
         parsed_data = list()
         var_name_ship = "ВЫГРУЗКА ГРУЗА С Т/Х "
         with open(input_file_path, newline='') as csvfile:
@@ -92,17 +93,17 @@ class OoclCsv(object):
                         parsed_record['container_number'] = line[add_id + 2]
                         container_size = re.findall("\d{2}", line[add_id + 1].strip())[0]
                         container_type = re.findall("[A-Z a-z]{1,3}", line[add_id + 1].strip())[0]
-                        parsed_record['container_size'] = container_size
+                        parsed_record['container_size'] = int(container_size)
                         parsed_record['container_type'] = container_type
                         parsed_record['goods_weight'] = float(line[add_id + 5])
                         parsed_record['package_number'] = int(float(line[add_id + 6]))
-                        parsed_record['goods_name_rus'] = line[add_id + 7]
-                        parsed_record['consignment'] = line[add_id + 10]
-                        parsed_record['city'] = line[add_id + 11]
-                        parsed_record['shipper'] = line[add_id + 8]
+                        parsed_record['goods_name_rus'] = line[add_id + 7].strip()
+                        parsed_record['consignment'] = line[add_id + 10].strip()
+                        parsed_record['city'] = line[add_id + 11].strip()
+                        parsed_record['shipper'] = line[add_id + 8].strip()
                         shipper_country = [i for i in line[add_id + 8].split(', ')][-1:]
-                        parsed_record['shipper_country'] = shipper_country[0]
-                        parsed_record['consignee'] = line[add_id + 9]
+                        parsed_record['shipper_country'] = shipper_country[0].strip()
+                        parsed_record['consignee'] = line[add_id + 9].strip()
                         record = merge_two_dicts(context, parsed_record)
                         logging.info(u"record is {}".format(record))
                         parsed_data.append(record)
@@ -117,17 +118,17 @@ class OoclCsv(object):
                             parsed_record['container_number'] = line[add_id + 1]
                             container_size = re.findall("\d{2}", line[add_id + 0].strip())[0]
                             container_type = re.findall("[A-Z a-z]{1,3}", line[add_id + 0].strip())[0]
-                            parsed_record['container_size'] = container_size
+                            parsed_record['container_size'] = int(container_size)
                             parsed_record['container_type'] = container_type
                             parsed_record['goods_weight'] = float(line[add_id + 4])
                             parsed_record['package_number'] = int(float(line[add_id + 5]))
-                            parsed_record['goods_name_rus'] = line[add_id + 6]
-                            parsed_record['consignment'] = line[add_id + 9]
-                            parsed_record['city'] = line[add_id + 10]
-                            parsed_record['shipper'] = line[add_id + 7]
+                            parsed_record['goods_name_rus'] = line[add_id + 6].strip()
+                            parsed_record['consignment'] = line[add_id + 9].strip()
+                            parsed_record['city'] = line[add_id + 10].strip()
+                            parsed_record['shipper'] = line[add_id + 7].strip()
                             shipper_country = [i for i in line[add_id + 7].split(', ')][-1:]
                             parsed_record['shipper_country'] = shipper_country[0]
-                            parsed_record['consignee'] = line[add_id + 8]
+                            parsed_record['consignee'] = line[add_id + 8].strip()
                             record = merge_two_dicts(context, parsed_record)
                             logging.info(u"record is {}".format(record))
                             parsed_data.append(record)
@@ -145,7 +146,12 @@ output_file_path = os.path.join(output_folder, basename+'.json')
 print("output_file_path is {}".format(output_file_path))
 
 parsed_data = OoclCsv().process(input_file_path)
-print(len(parsed_data))
+
+
 with open(output_file_path, 'w', encoding='utf-8') as f:
     json.dump(parsed_data, f, ensure_ascii=False, indent=4)
 
+set_container = set()
+for container in range(len(parsed_data)):
+    set_container.add(parsed_data[container]['container_number'])
+print(len(set_container))

@@ -1,11 +1,8 @@
 import csv
-import datetime
 import os
 import logging
-import re
 import sys
 import json
-
 
 
 if not os.path.exists("logging"):

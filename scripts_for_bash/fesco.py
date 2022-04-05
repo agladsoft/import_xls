@@ -5,6 +5,7 @@ import logging
 import re
 import sys
 import json
+from dateutil.relativedelta import relativedelta
 
 if not os.path.exists("logging"):
     os.mkdir("logging")
@@ -49,7 +50,7 @@ class OoclCsv(object):
     def process(self, input_file_path):
         context = dict(line=os.path.basename(__file__).replace(".py", ""))
         context['terminal'] = os.environ.get('XL_IMPORT_TERMINAL')
-        context['parsed_on'] = str(datetime.datetime.now().date())
+        context['parsed_on'] = str(datetime.datetime.now().date() - relativedelta(months=1))
         parsed_data = list()
         last_container_number = list()
         last_container_size = list()
@@ -87,13 +88,14 @@ class OoclCsv(object):
                     if isDigit(line[0]) or (not line[0] and not line[1] and not line[2] and not line[3] and isDigit(
                             line[5])):
                         try:
-                            container_size_and_type = re.findall("\w{1,2}", line[2].strip())
-                            parsed_record['container_size'] = int(float(container_size_and_type[0]))
-                            parsed_record['container_type'] = container_size_and_type[1]
+                            container_size = re.findall("\d{2}", line[2].strip())[0]
+                            container_type = re.findall("[A-Z a-z]{1,3}", line[2].strip())[0]
+                            parsed_record['container_size'] = int(container_size)
+                            parsed_record['container_type'] = container_type
                             parsed_record['container_number'] = line[1].strip()
                             last_container_number.append(line[1].strip())
-                            last_container_size.append(container_size_and_type[0])
-                            last_container_type.append(container_size_and_type[1])
+                            last_container_size.append(int(container_size))
+                            last_container_type.append(container_type)
                             record = add_value_to_dict(parsed_record, line[7], line[5], line[6].strip(),
                                                        line[9].strip(),
                                                        line[10].strip(),
@@ -130,5 +132,11 @@ print("output_file_path is {}".format(output_file_path))
 
 parsed_data = OoclCsv().process(input_file_path)
 
+
 with open(output_file_path, 'w', encoding='utf-8') as f:
     json.dump(parsed_data, f, ensure_ascii=False, indent=4)
+
+set_container = set()
+for container in range(len(parsed_data)):
+    set_container.add(parsed_data[container]['container_number'])
+print(len(set_container))

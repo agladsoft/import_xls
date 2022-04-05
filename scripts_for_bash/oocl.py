@@ -2,9 +2,9 @@ import csv
 import datetime
 import os
 import logging
-import re
 import sys
 import json
+from dateutil.relativedelta import relativedelta
 
 if not os.path.exists("logging"):
     os.mkdir("logging")
@@ -49,7 +49,7 @@ class OoclCsv(object):
     def process(self, input_file_path):
         context = dict(line=os.path.basename(__file__).replace(".py", ""))
         context['terminal'] = os.environ.get('XL_IMPORT_TERMINAL')
-        context['parsed_on'] = str(datetime.datetime.now().date())
+        context['parsed_on'] = str(datetime.datetime.now().date() - relativedelta(months=1))
         parsed_data = list()
         last_container_number = list()
         last_container_size = list()
@@ -86,11 +86,6 @@ class OoclCsv(object):
             if ir > 12 and bool(str_list):
                 try:
                     logging.info(u"Checking if we are on common line with number...")
-                    # range_id = line[0:2]
-                    # match_id = [isDigit(id) for id in range_id]
-                    # add_id = match_id.index(True)
-                    # line_id = str(float(range_id[add_id]))
-                    logging.info(u"Ok, line looks common...")
                     parsed_record = dict()
                     if isDigit(line[0]):
                         parsed_record['container_number'] = line[1].strip()
@@ -135,5 +130,11 @@ print("output_file_path is {}".format(output_file_path))
 
 parsed_data = OoclCsv().process(input_file_path)
 
+
 with open(output_file_path, 'w', encoding='utf-8') as f:
     json.dump(parsed_data, f, ensure_ascii=False, indent=4)
+
+set_container = set()
+for container in range(len(parsed_data)):
+    set_container.add(parsed_data[container]['container_number'])
+print(len(set_container))

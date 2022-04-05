@@ -5,6 +5,7 @@ import logging
 import re
 import sys
 import json
+from dateutil.relativedelta import relativedelta
 
 month_list = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября",
          "декабря"]
@@ -55,7 +56,7 @@ class OoclCsv(object):
     def process(self, input_file_path):
         context = dict(line=os.path.basename(__file__).replace(".py", ""))
         context['terminal'] = os.environ.get('XL_IMPORT_TERMINAL')
-        context['parsed_on'] = str(datetime.datetime.now().date())
+        context['parsed_on'] = str(datetime.datetime.now().date() - relativedelta(months=1))
         parsed_data = list()
         var_name_ship = "ВЫГРУЗКА ГРУЗА С Т/Х "
         with open(input_file_path, newline='') as csvfile:
@@ -98,7 +99,7 @@ class OoclCsv(object):
                         try:
                             container_size = re.findall("\d{2}", line[2].strip())[0]
                             container_type = re.findall("[A-Z a-z]{1,3}", line[2].strip())[0]
-                            parsed_record['container_size'] = container_size
+                            parsed_record['container_size'] = int(container_size)
                             parsed_record['container_type'] = container_type
                             parsed_record['container_number'] = line[3]
                             record = add_value_to_dict(parsed_record, line[7], line[8], line[9].strip(),
@@ -153,5 +154,11 @@ for line in parsed_data:
 
     parsed_data_2.append(record)
 
+
 with open(output_file_path, 'w', encoding='utf-8') as f:
     json.dump(parsed_data_2, f, ensure_ascii=False, indent=4)
+
+set_container = set()
+for container in range(len(parsed_data_2)):
+    set_container.add(parsed_data_2[container]['container_number'])
+print(len(set_container))

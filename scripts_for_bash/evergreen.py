@@ -4,6 +4,7 @@ import os
 import logging
 import sys
 import json
+from dateutil.relativedelta import relativedelta
 
 if not os.path.exists("logging"):
     os.mkdir("logging")
@@ -34,7 +35,7 @@ class OoclCsv(object):
     def process(self, input_file_path):
         context = dict(line=os.path.basename(__file__).replace(".py", ""))
         context['terminal'] = os.environ.get('XL_IMPORT_TERMINAL')
-        context['parsed_on'] = str(datetime.datetime.now().date())
+        context['parsed_on'] = str(datetime.datetime.now().date() - relativedelta(months=1))
         parsed_data = list()
         with open(input_file_path, newline='') as csvfile:
             lines = list(csv.reader(csvfile))
@@ -45,7 +46,7 @@ class OoclCsv(object):
         for ir, line in enumerate(lines):
             logging.info(u'line {} is {}'.format(ir, line))
             str_list = list(filter(bool, line))
-            if ir == 2:
+            if ir > 1 and line[0] == 'Название судна:':
                 logging.info(u"Will parse ship and trip in value '{}'...".format(line[2], line[6]))
                 context['ship'] = line[2].strip()
                 context['voyage'] = line[6].strip()
@@ -117,5 +118,12 @@ for line in parsed_data:
             list_last_value[key] = value
 
     parsed_data_2.append(record)
+
+
 with open(output_file_path, 'w', encoding='utf-8') as f:
     json.dump(parsed_data_2, f, ensure_ascii=False, indent=4)
+
+set_container = set()
+for container in range(len(parsed_data_2)):
+    set_container.add(parsed_data_2[container]['container_number'])
+print(len(set_container))
