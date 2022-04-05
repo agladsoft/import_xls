@@ -31,7 +31,7 @@ def add_value_to_dict(parsed_record, goods_weight, package_number, name_rus, con
                       consignee,
                       city, context):
     parsed_record['goods_weight'] = float(goods_weight) if goods_weight else None
-    parsed_record['package_number'] = int(float(package_number))
+    parsed_record['package_number'] = int(float(package_number)) if package_number else None
     parsed_record['goods_name_rus'] = name_rus
     parsed_record['consignment'] = consignment
     parsed_record['shipper'] = shipper

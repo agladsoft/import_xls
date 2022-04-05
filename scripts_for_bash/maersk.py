@@ -77,7 +77,7 @@ class OoclCsv(object):
                         parsed_record['container_size'] = container_size
                         parsed_record['container_type'] = container_type
                         parsed_record['goods_weight'] = float(line[10]) if line[10] else None
-                        parsed_record['package_number'] = line[11].strip()
+                        parsed_record['package_number'] = line[11].strip() if line[11] else None
 
                         record = merge_two_dicts(context, parsed_record)
                         logging.info(u"record is {}".format(record))

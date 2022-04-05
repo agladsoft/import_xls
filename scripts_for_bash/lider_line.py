@@ -41,7 +41,7 @@ def add_data_to_parced(parsed_data, line, context, num1, num2, num3, num4, num5,
             'container_size': int(float(line[add_id + 2])),
             'container_type': line[add_id + 3].strip(),
             'goods_name_rus': line[add_id + 7].strip(),
-            'package_number': int(float(line[add_id + num1])),
+            'package_number': int(float(line[add_id + num1])) if line[add_id + num1] else None,
             'goods_weight': float(line[add_id + num2]) if line[add_id + num2] else None,
             'consignment': line[add_id + num3].strip(),
             'date': str(date.date()),
@@ -79,7 +79,6 @@ class OoclCsv(object):
         for ir, line in enumerate(lines):
             logging.info(u'line {} is {}'.format(ir, line))
             str_list = list(filter(bool, line))
-            print(ir, line)
             if ir == 3:
                 logging.info(u"Will parse ship and trip in value '{}'...".format(line[2], line[6]))
                 split_on = u'рейс:'
