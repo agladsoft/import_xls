@@ -4,3 +4,4 @@
 ./reference_morservice.sh
 ./reference_region.sh
 ./reference_statistics.sh
+./reference_ship.sh
