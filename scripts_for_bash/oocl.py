@@ -138,3 +138,9 @@ set_container = set()
 for container in range(len(parsed_data)):
     set_container.add(parsed_data[container]['container_number'])
 print(len(set_container))
+
+dict_d = {}
+for elem in range(len(parsed_data)):
+    dict_d[parsed_data[elem]['container_number']] = dict_d.get(parsed_data[elem]['container_number'], 0) + 1
+doubles = {element: count for element, count in dict_d.items() if count > 1}
+print(doubles)
