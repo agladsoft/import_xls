@@ -25,9 +25,13 @@ def merge_two_dicts(x, y):
 
 def parse_column(parsed_data, enum, column0, column1, enum_for_value):
     try:
-        parsed_ship_name_and_date = re.findall(r'\b\S+\b', columns[column1][enum])
-        ship_name = [word for word in parsed_ship_name_and_date if re.findall('[A-Z a-z]', word)]
-        date_full = parsed_ship_name_and_date[-1].rsplit("-")
+        # parsed_ship_name_and_date = re.findall(r'\b\S+\b', columns[column1][enum])
+        # ship_name = [word for word in parsed_ship_name_and_date if re.findall('[A-Z a-z]', word)]
+        # date_full = parsed_ship_name_and_date[-1].rsplit("-")
+        parsed_ship_name_and_date = columns[column1][enum].split()
+        ship_name = list(parsed_ship_name_and_date[1:-1])
+        ship_name = "".join(ship_name).split() if '-' in ship_name else ship_name
+        date_full = parsed_ship_name_and_date[-1].replace('(', '').replace(')', '').rsplit("-")
         context['date_arrive'] = date_full[0]
         context['date_leave'] = date_full[1]
         context['ship_name'] = context['ship_name'] if not columns[column1][enum] else \
