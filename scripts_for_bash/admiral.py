@@ -55,7 +55,11 @@ class OoclCsv(object):
     def process(self, input_file_path):
         context = dict(line=os.path.basename(__file__).replace(".py", ""))
         context['terminal'] = os.environ.get('XL_IMPORT_TERMINAL')
-        context['parsed_on'] = str(datetime.datetime.now().date() - relativedelta(months=1))
+        # context['parsed_on'] = str(datetime.datetime.now().date() - relativedelta(months=1))
+        date_previous = re.match('\d{2,4}.\d{1,2}', os.path.basename(sys.argv[1]))
+        date_previous = date_previous.group() + '.01' if date_previous else date_previous
+        context['parsed_on'] = str(datetime.datetime.strptime(date_previous, "%Y.%m.%d").date()) if \
+            date_previous else str(datetime.datetime.now().date() - relativedelta(months=1))
         parsed_data = list()
         var_name_ship = "ВЫГРУЗКА ГРУЗА С Т/Х "
         with open(input_file_path, newline='') as csvfile:

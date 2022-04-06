@@ -56,7 +56,10 @@ class OoclCsv(object):
     def process(self, input_file_path):
         context = dict(line=os.path.basename(__file__).replace(".py", ""))
         context['terminal'] = os.environ.get('XL_IMPORT_TERMINAL')
-        context['parsed_on'] = str(datetime.datetime.now().date() - relativedelta(months=1))
+        date_previous = re.match('\d{2,4}.\d{1,2}', os.path.basename(sys.argv[1]))
+        date_previous = date_previous.group() + '.01' if date_previous else date_previous
+        context['parsed_on'] = str(datetime.datetime.strptime(date_previous, "%Y.%m.%d").date()) if \
+            date_previous else str(datetime.datetime.now().date() - relativedelta(months=1))
         parsed_data = list()
         var_name_ship = "ВЫГРУЗКА ГРУЗА С "
         with open(input_file_path, newline='') as csvfile:
@@ -80,8 +83,8 @@ class OoclCsv(object):
                 logging.info(u"substring to split on is '{}'".format(split_on))
                 ship_and_voyage_str = line[add_voyage].replace(var_name_ship, "")
                 ship_and_voyage_list = ship_and_voyage_str.rsplit(' ', 1)
-                context['ship'] = ship_and_voyage_list[0]
-                context['voyage'] = re.sub(r'[^\w\s]','', ship_and_voyage_list[1])
+                context['ship'] = ship_and_voyage_list[0].strip()
+                context['voyage'] = re.sub(r'[^\w\s]','', ship_and_voyage_list[1]).strip()
                 logging.info(u"context now is {}".format(context))
                 continue
             if ir > 1 < 10 and line[add_voyage] == 'Дата прихода:':
