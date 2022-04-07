@@ -17,7 +17,7 @@ def getvalueofnode(node):
 def main():
     data = list()
     for i, node in enumerate(root.findall(".//doc:Row", ns)):
-        if i > 3:
+        if i >= 0:
             data.append({'id': getvalueofnode(node.find('doc:Cell[1]/doc:Data', ns)),
                          'number_container': getvalueofnode(node.find('doc:Cell[2]/doc:Data', ns)),
                          'size_container': getvalueofnode(node.find('doc:Cell[3]/doc:Data', ns)),

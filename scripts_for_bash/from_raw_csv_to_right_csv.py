@@ -67,17 +67,17 @@ class OoclCsv(object):
         for ir, line in enumerate(lines):
             logging.info(u'line {} is {}'.format(ir, line))
             str_list = list(filter(bool, line))
-            if ir == 1:
+            if ir > 1 < 10 and 'Рейс' in line[0]:
                 logging.info(u"Will parse trip in value '{}'...".format(line[2]))
                 context['voyage'] = line[2]
                 logging.info(u"context now is {}".format(context))
                 continue
-            if ir == 2:
+            if ir > 1 < 10 and 'Название судна' in line[0]:
                 logging.info(u"Will parse ship in value '{}'...".format(line[2]))
                 context['ship'] = line[2]
                 logging.info(u"context now is {}".format(context))
                 continue
-            if ir == 3:
+            if ir > 1 < 10 and 'Дата прихода' in line[0]:
                 logging.info("Will parse date in value {}...".format(line[2]))
                 context['date'] = line[2] if line[2] else None
                 logging.info(u"context now is {}".format(context))
