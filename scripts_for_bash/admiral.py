@@ -56,7 +56,7 @@ class OoclCsv(object):
         context = dict(line=os.path.basename(__file__).replace(".py", ""))
         context['terminal'] = os.environ.get('XL_IMPORT_TERMINAL')
         # context['parsed_on'] = str(datetime.datetime.now().date() - relativedelta(months=1))
-        date_previous = re.match('\d{2,4}.\d{1,2}', os.path.basename(sys.argv[1]))
+        date_previous = re.match('\d{2,4}.\d{1,2}', os.path.basename(input_file_path))
         date_previous = date_previous.group() + '.01' if date_previous else date_previous
         context['parsed_on'] = str(datetime.datetime.strptime(date_previous, "%Y.%m.%d").date()) if \
             date_previous else str(datetime.datetime.now().date() - relativedelta(months=1))
