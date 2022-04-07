@@ -81,7 +81,7 @@ class OoclCsv(object):
                     context['date'] = None
                     logging.info("There's not a month in file")
                     continue
-            if ir > 11 and bool(str_list):
+            if ir > 10 and bool(str_list):
                 try:
                     logging.info(u"Checking if we are on common line with number...")
                     range_id = line[0:2]
@@ -95,7 +95,10 @@ class OoclCsv(object):
                         parsed_record = dict()
                         parsed_record['container_number'] = line[add_id + 2]
                         container_size = re.findall("\d{2}", line[add_id + 1].strip())[0]
-                        container_type = re.findall("[A-Z a-z]{1,3}", line[add_id + 1].strip())[0]
+                        try:
+                            container_type = re.findall("[A-Z a-z]{1,3}", line[add_id + 1].strip())[0]
+                        except:
+                            container_type = None
                         parsed_record['container_size'] = int(container_size)
                         parsed_record['container_type'] = container_type
                         parsed_record['goods_weight'] = float(line[add_id + 5])
@@ -142,6 +145,8 @@ class OoclCsv(object):
         return parsed_data
 
 
+# input_file_path = "/home/timur/Anton_project/import_xls-master/НУТЭП - ноябрь/YANG MING/csv/Копия YML.Разнарядка._CONTSHIP SEA 144N ЯНГ МИНГ.xls.csv"
+# output_folder = "/home/timur/Anton_project/import_xls-master/НУТЭП - ноябрь/YANG MING/json"
 input_file_path = os.path.abspath(sys.argv[1])
 output_folder = sys.argv[2]
 basename = os.path.basename(input_file_path)
