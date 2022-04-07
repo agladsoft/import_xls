@@ -51,7 +51,7 @@ class OoclCsv(object):
     def process(self, input_file_path):
         context = dict(line="lider_line")
         context["terminal"] = os.environ.get('XL_IMPORT_TERMINAL')
-        date_previous = re.match('\d{2,4}.\d{1,2}', os.path.basename(sys.argv[1]))
+        date_previous = re.match('\d{2,4}.\d{1,2}', os.path.basename(input_file_path))
         date_previous = date_previous.group() + '.01' if date_previous else date_previous
         context['parsed_on'] = str(datetime.datetime.strptime(date_previous, "%Y.%m.%d").date()) if \
             date_previous else str(datetime.datetime.now().date() - relativedelta(months=1))
@@ -94,10 +94,19 @@ class OoclCsv(object):
                         last_container_number.append(line[1])
                         last_container_size.append(line[2])
                         last_container_type.append(line[3])
-                        record = add_value_to_dict(parsed_record, line[10], line[9], line[7].strip(), line[11].strip(),
-                                                   line[12],
-                                                   line[13].strip(),
-                                                   line[14].strip(), line[15].strip(), line[16].strip(), context)
+                        try:
+                            record = add_value_to_dict(parsed_record, line[10], line[9], line[7].strip(), line[11].strip(),
+                                                       line[12],
+                                                       line[13].strip(),
+                                                       line[14].strip(), line[15].strip(), line[16].strip(), context)
+                        except ValueError:
+                            record = add_value_to_dict(parsed_record, line[9], line[8], line[7].strip(),
+                                                       line[10].strip(),
+                                                       line[11],
+                                                       line[12].strip(),
+                                                       line[13].strip(), line[14].strip(), line[15].strip(), context)
+                            logging.info(u"record is {}".format(record))
+
                         logging.info(u"record is {}".format(record))
                         parsed_data.append(record)
                     elif not line[0] and not line[1] and not line[2] and not line[3]:
@@ -117,6 +126,8 @@ class OoclCsv(object):
         return parsed_data
 
 
+# input_file_path = "/home/timur/Anton_project/import_xls-master/НУТЭП - ноябрь/LIDER LINE/csv/АБАНОЗ от 06.12.21.xml.csv"
+# output_folder = "/home/timur/Anton_project/import_xls-master/НУТЭП - ноябрь/LIDER LINE/json"
 input_file_path = os.path.abspath(sys.argv[1])
 output_folder = sys.argv[2]
 basename = os.path.basename(input_file_path)
