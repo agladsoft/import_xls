@@ -96,8 +96,8 @@ class OoclCsv(object):
                                                    line[add_id + 13], line[add_id + 14], context)
                         logging.info(u"record is {}".format(record))
                         parsed_data.append(record)
-                except:
-                    if line[1] and line[6] and line[12]:
+                except Exception as ex:
+                    if not line[0] and line[1] and line[6] and line[12]:
                         record = add_value_to_dict(line[add_id + 1], line[add_id + 2], line[add_id + 3],
                                                    line[add_id + 8], line[add_id + 5], line[add_id + 6],
                                                    line[add_id + 7], line[add_id + 10], line[add_id + 12],
@@ -110,7 +110,7 @@ class OoclCsv(object):
         return parsed_data
 
 
-# input_file_path = "/home/timur/Anton_project/import_xls-master/НУТЭП - ноябрь/Evergreen/csv/UNI-PHOENIX от 27.12.21.xlsx.csv"
+# input_file_path = "/home/timur/Anton_project/import_xls-master/НУТЭП - ноябрь/Evergreen/csv/2022.02 Копия Разнарядка (4) АЙ-ЭС-ЭЛ от 04.02.xlsx.csv"
 # output_folder = "/home/timur/Anton_project/import_xls-master/НУТЭП - ноябрь/Evergreen/json"
 input_file_path = os.path.abspath(sys.argv[1])
 output_folder = sys.argv[2]
