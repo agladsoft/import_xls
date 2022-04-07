@@ -28,6 +28,26 @@ def isDigit(x):
         return False
 
 
+def add_value_to_dict(container_number, container_size, container_type, goods_weight, package_number, name_rus,
+                       goods_tnved, consignment, shipper,
+                      shipper_country, consignee, context):
+    parsed_record = dict()
+    parsed_record['container_number'] = container_number.strip()
+    parsed_record['container_size'] = int(float(container_size))
+    parsed_record['container_type'] = container_type.strip()
+    parsed_record['goods_weight'] = float(goods_weight) if goods_weight else None
+    parsed_record['package_number'] = int(float(package_number)) if package_number else None
+    parsed_record['goods_name_rus'] = name_rus.strip()
+    parsed_record['goods_tnved'] = int(goods_tnved) if goods_tnved else None
+    parsed_record['consignment'] = consignment.strip()
+    parsed_record['shipper'] = shipper.strip()
+    parsed_record['shipper_country'] = shipper_country.strip()
+    parsed_record['consignee'] = consignee.strip()
+    city = [i for i in consignee.split(', ')][1:] if consignee != '*' else '*'
+    parsed_record['city'] = " ".join(city).strip()
+    return merge_two_dicts(context, parsed_record)
+
+
 class OoclCsv(object):
 
     def __init__(self):
@@ -70,33 +90,28 @@ class OoclCsv(object):
                     add_id = match_id.index(True)
                     line_id = str(float(range_id[add_id]))
                     if isDigit(line_id):
-                        logging.info(u"Ok, line looks common...")
-                        parsed_record = dict()
-                        parsed_record['container_number'] = line[add_id + 1].strip()
-                        parsed_record['container_size'] = int(float(line[add_id + 2]))
-                        parsed_record['container_type'] = line[add_id + 3].strip()
-                        parsed_record['goods_weight'] = float(line[add_id + 8]) if line[add_id + 8] else None
-                        parsed_record['package_number'] = int(float(line[add_id + 5])) if line[add_id + 5] else None
-                        parsed_record['goods_name_rus'] = line[add_id + 6].strip()
-                        parsed_record['goods_tnved'] = int(line[add_id + 7]) if line[add_id + 7] else None
-                        parsed_record['consignment'] = line[add_id + 10].strip()
-                        parsed_record['shipper'] = line[add_id + 12].strip()
-                        parsed_record['shipper_country'] = line[add_id + 13].strip()
-                        parsed_record['consignee'] = line[add_id + 14].strip()
-                        city = [i for i in line[add_id + 14].split(', ')][1:] if line[add_id + 14] != '*' else '*'
-                        parsed_record['city'] = " ".join(city).strip()
-                        record = merge_two_dicts(context, parsed_record)
+                        record = add_value_to_dict(line[add_id + 1], line[add_id + 2], line[add_id + 3],
+                                                   line[add_id + 8], line[add_id + 5], line[add_id + 6],
+                                                   line[add_id + 7], line[add_id + 10], line[add_id + 12],
+                                                   line[add_id + 13], line[add_id + 14], context)
                         logging.info(u"record is {}".format(record))
                         parsed_data.append(record)
                 except:
+                    if line[1] and line[6] and line[12]:
+                        record = add_value_to_dict(line[add_id + 1], line[add_id + 2], line[add_id + 3],
+                                                   line[add_id + 8], line[add_id + 5], line[add_id + 6],
+                                                   line[add_id + 7], line[add_id + 10], line[add_id + 12],
+                                                   line[add_id + 13], line[add_id + 14], context)
+                        logging.info(u"record is {}".format(record))
+                        parsed_data.append(record)
                     continue
 
         logging.error(u"About to write parsed_data to output: {}".format(parsed_data))
         return parsed_data
 
 
-# dir_name = 'НУТЭП - ноябрь/Economou/csv/'
-# input_file_path = 'Копия уведомление о прибытии JONATHAN P 2144N  - HL.xls.csv'
+# input_file_path = "/home/timur/Anton_project/import_xls-master/НУТЭП - ноябрь/Evergreen/csv/UNI-PHOENIX от 27.12.21.xlsx.csv"
+# output_folder = "/home/timur/Anton_project/import_xls-master/НУТЭП - ноябрь/Evergreen/json"
 input_file_path = os.path.abspath(sys.argv[1])
 output_folder = sys.argv[2]
 basename = os.path.basename(input_file_path)
