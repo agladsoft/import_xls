@@ -78,7 +78,7 @@ class OoclCsv(object):
                     logging.info(u"context now is {}".format(context))
                     continue
                 except IndexError:
-                    context['date'] = None
+                    context['date'] = '1970-01-01'
                     logging.info("There's not a month in file")
                     continue
             if ir > 10 and bool(str_list):

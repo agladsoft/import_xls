@@ -91,7 +91,7 @@ class OoclCsv(object):
                     logging.info(u"context now is {}".format(context))
                     continue
                 except:
-                    context['date'] = None
+                    context['date'] = '1970-01-01'
                     continue
             if ir > 11 and bool(str_list):
                 try:

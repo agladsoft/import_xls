@@ -79,7 +79,7 @@ class OoclCsv(object):
             if ir > 1 and line[0] == 'Дата прихода:':
                 logging.info("Will parse date in value {}...".format(line[2]))
                 date = datetime.datetime.strptime(line[2], "%Y-%m-%d")
-                context['date'] = str(date.date()) if str(date.date()) else None
+                context['date'] = str(date.date()) if str(date.date()) else '1970-01-01'
                 logging.info(u"context now is {}".format(context))
                 continue
             if ir > 8 and bool(str_list):  # Была на 11 итерация
