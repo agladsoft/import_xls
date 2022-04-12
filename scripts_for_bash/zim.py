@@ -109,7 +109,7 @@ class OoclCsv(object):
                         match_id = [isDigit(id) for id in range_id]
                         add_id = match_id.index(True)
                         activate_def = True
-                    if isDigit(line[add_id]) or line[add_id + 7]:
+                    if isDigit(line[add_id]) or line[add_id + 12]:
                         try:
                             container_size = re.findall("\d{2}", line[add_id + 1].strip())[0]
                             container_type = re.findall("[A-Z a-z]{1,4}", line[add_id + 1].strip())[0]
