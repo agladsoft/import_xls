@@ -76,7 +76,7 @@ class OoclCsv(object):
                                                                                         True, False):
                         parsed_record['container_number'] = line[3].strip()
                         container_size = re.findall("\d{2}", line[5].strip())[0]
-                        container_type = re.findall("[A-Z a-z]{1,3}", line[5].strip())[0]
+                        container_type = re.findall("[A-Z a-z]{1,4}", line[5].strip())[0]
                         parsed_record['container_size'] = container_size
                         parsed_record['container_type'] = container_type
                         parsed_record['goods_weight'] = float(line[10]) if line[10] else None
@@ -102,7 +102,7 @@ class OoclCsv(object):
         return parsed_data
 
 
-# dir_name = "/home/timur/PycharmWork/PORT_LINE_CSV/НУТЭП - ноябрь/MAERSK - собирает робот/csv/"
+# dir_name = "/home/timur/PycharmWork/PORT_LINE_CSV/НУТЭП - ноябрь/MAERSK/csv/"
 # input_file_path = "man-T9X143W-All.xls.csv"
 input_file_path = os.path.abspath(sys.argv[1])
 output_folder = sys.argv[2]

@@ -112,7 +112,7 @@ class OoclCsv(object):
                     if isDigit(line[add_id]) or line[add_id + 7]:
                         try:
                             container_size = re.findall("\d{2}", line[add_id + 1].strip())[0]
-                            container_type = re.findall("[A-Z a-z]{1,3}", line[add_id + 1].strip())[0]
+                            container_type = re.findall("[A-Z a-z]{1,4}", line[add_id + 1].strip())[0]
                             parsed_record['container_size'] = int(container_size)
                             parsed_record['container_type'] = container_type
                             parsed_record['container_number'] = line[add_id + 2]
@@ -158,7 +158,7 @@ class OoclCsv(object):
         return parsed_data
 
 
-# input_file_path = '/home/timur/Anton_project/import_xls-master/НУТЭП - ноябрь/ZIM/csv/Копия УВЕДОМЛЕНИЕ Navios Summer v. 41E.xlsx.csv'
+# input_file_path = '/home/timur/Anton_project/import_xls-master/НУТЭП - ноябрь/ZIM/csv/Копия УВЕДОМЛЕНИЕ AS723Е.xls.csv'
 # output_folder = '/home/timur/Anton_project/import_xls-master/НУТЭП - ноябрь/ZIM/json'
 input_file_path = os.path.abspath(sys.argv[1])
 output_folder = sys.argv[2]
@@ -177,7 +177,10 @@ for line in reversed(parsed_data):
     parsed_record = dict()
     for key, value in zip(keys_list, values_list):
         if value == '':
-            context[key] = list_last_value[key]
+            try:
+                context[key] = list_last_value[key]
+            except KeyError:
+                continue
         else:
             parsed_record[key] = value
         record = merge_two_dicts(context, parsed_record)
@@ -192,11 +195,17 @@ with open(output_file_path, 'w', encoding='utf-8') as f:
 
 set_container = set()
 for container in range(len(parsed_data_2)):
-    set_container.add(parsed_data_2[container]['container_number'])
+    try:
+        set_container.add(parsed_data_2[container]['container_number'])
+    except KeyError:
+        continue
 print(len(set_container))
 
 dict_d = {}
 for elem in range(len(parsed_data_2)):
-    dict_d[parsed_data_2[elem]['container_number']] = dict_d.get(parsed_data_2[elem]['container_number'], 0) + 1
+    try:
+        dict_d[parsed_data_2[elem]['container_number']] = dict_d.get(parsed_data_2[elem]['container_number'], 0) + 1
+    except KeyError:
+        continue
 doubles = {element: count for element, count in dict_d.items() if count > 1}
 print(doubles)

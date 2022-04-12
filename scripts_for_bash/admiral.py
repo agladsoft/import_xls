@@ -100,7 +100,7 @@ class OoclCsv(object):
                     if isDigit(line[1]) or (not line[0] and not line[1] and not line[2] and not line[3]):
                         try:
                             container_size = re.findall("\d{2}", line[2].strip())[0]
-                            container_type = re.findall("[A-Z a-z]{1,3}", line[2].strip())[0]
+                            container_type = re.findall("[A-Z a-z]{1,4}", line[2].strip())[0]
                             parsed_record['container_size'] = int(container_size)
                             parsed_record['container_type'] = container_type
                             parsed_record['container_number'] = line[3]
@@ -148,7 +148,10 @@ for line in reversed(parsed_data):
     parsed_record = dict()
     for key, value in zip(keys_list, values_list):
         if value == '':
-            context[key] = list_last_value[key]
+            try:
+                context[key] = list_last_value[key]
+            except KeyError:
+                continue
         else:
             parsed_record[key] = value
         record = merge_two_dicts(context, parsed_record)
@@ -163,5 +166,8 @@ with open(output_file_path, 'w', encoding='utf-8') as f:
 
 set_container = set()
 for container in range(len(parsed_data_2)):
-    set_container.add(parsed_data_2[container]['container_number'])
+    try:
+        set_container.add(parsed_data_2[container]['container_number'])
+    except KeyError:
+        continue
 print(len(set_container))

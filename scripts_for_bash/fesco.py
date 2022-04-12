@@ -92,7 +92,7 @@ class OoclCsv(object):
                             line[5])):
                         try:
                             container_size = re.findall("\d{2}", line[2].strip())[0]
-                            container_type = re.findall("[A-Z a-z]{1,3}", line[2].strip())[0]
+                            container_type = re.findall("[A-Z a-z]{1,4}", line[2].strip())[0]
                             parsed_record['container_size'] = int(container_size)
                             parsed_record['container_type'] = container_type
                             parsed_record['container_number'] = line[1].strip()
