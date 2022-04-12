@@ -71,8 +71,11 @@ class OoclCsv(object):
                 logging.info(u"Will parse ship in value '{}'...".format(line[2]))
                 context['ship'] = line[2].strip()
             if ir == 12:
-                logging.info("Will parse date in value {}...".format(line[2]))
-                context['date'] = xldate_to_datetime(float(line[2])) if xldate_to_datetime(float(line[2])) else '1970-01-01'
+                try:
+                    logging.info("Will parse date in value {}...".format(line[2]))
+                    context['date'] = xldate_to_datetime(float(line[2]))
+                except:
+                    context['date'] = '1970-01-01'
                 logging.info(u"context now is {}".format(context))
             if ir > 8 and bool(str_list):
                 try:

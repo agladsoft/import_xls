@@ -82,16 +82,26 @@ class OoclCsv(object):
         for ir, line in enumerate(lines):
             logging.info(u'line {} is {}'.format(ir, line))
             str_list = list(filter(bool, line))
-            if ir == 4:
+            if ir == 1 and line[6]:
+                logging.info(u"Will parse ship and trip in value '{}'...".format(line[2], line[4]))
+                var_garbage = 'ПРИЛОЖЕНИЕ'
+                ship_and_voyage = line[6].replace(var_garbage, "").split()
+                context['ship'] = ' '.join(ship_and_voyage[:-1])
+                context['voyage'] = ' '.join(ship_and_voyage[-1:])
+                logging.info(u"context now is {}".format(context))
+            if ir == 4 and line[2] and line[4]:
                 logging.info(u"Will parse ship and trip in value '{}'...".format(line[2], line[4]))
                 context['ship'] = line[2].strip()
                 context['voyage'] = line[4].strip()
                 logging.info(u"context now is {}".format(context))
                 continue
             if ir == 7:
-                logging.info("Will parse date in value {}...".format(line[2]))
-                date = datetime.datetime.strptime(line[2], "%d.%m.%Y")
-                context['date'] = str(date.date()) if str(date.date()) else '1970-01-01'
+                try:
+                    logging.info("Will parse date in value {}...".format(line[2]))
+                    date = datetime.datetime.strptime(line[2], "%d.%m.%Y")
+                    context['date'] = str(date.date())
+                except:
+                    context['date'] = '1970-01-01'
                 logging.info(u"context now is {}".format(context))
                 continue
             if ir > 8 and bool(str_list):
