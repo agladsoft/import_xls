@@ -77,7 +77,7 @@ class OoclCsv(object):
                 add_voyage = match_voyage.index(True)
             except:
                 pass
-            if ir > 1 < 10 and 'ВЫГРУЗКА ГРУЗА' in line[add_voyage]:
+            if 10 > ir > 1 and 'ВЫГРУЗКА ГРУЗА' in line[add_voyage]:
                 logging.info(u"Will parse ship and trip in value '{}'...".format(line[add_voyage]))
                 split_on = u'рейс:'
                 logging.info(u"substring to split on is '{}'".format(split_on))
@@ -87,7 +87,7 @@ class OoclCsv(object):
                 context['voyage'] = re.sub(r'[^\w\s]','', ship_and_voyage_list[1]).strip()
                 logging.info(u"context now is {}".format(context))
                 continue
-            if ir > 1 < 10 and line[add_voyage] == 'Дата прихода:':
+            if 10 > ir > 1 and ('Дата прихода:' in line[add_voyage] or 'ДАТА ПРИХОДА:' in line[add_voyage]):
                 try:
                     logging.info("Will parse date in value {}...".format(line[add_voyage].rsplit(':  ', 1)[1]))
                     month = line[add_voyage].rsplit(':  ', 1)[1].rsplit(' ', 3)
