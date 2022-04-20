@@ -41,7 +41,7 @@ def main():
 
 my_dict = main()
 
-with open(path_to_right_csv + ".csv", 'w') as f:
+with open(path_to_right_csv, 'w') as f:
     for i, key in enumerate(my_dict):
         w = csv.DictWriter(f, my_dict[i].keys())
         w.writerow(my_dict[i])

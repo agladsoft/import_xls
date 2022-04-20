@@ -2,7 +2,6 @@
 ./line_akkon_lines.sh
 ./line_arkas.sh
 ./line_cma_cgm.sh
-./line_convert_xml_to_csv.sh
 ./line_cosco.sh
 ./line_economou.sh
 ./line_evergreen.sh

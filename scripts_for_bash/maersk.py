@@ -38,8 +38,10 @@ class OoclCsv(object):
         context['terminal'] = os.environ.get('XL_IMPORT_TERMINAL')
         date_previous = re.match('\d{2,4}.\d{1,2}', os.path.basename(input_file_path))
         date_previous = date_previous.group() + '.01' if date_previous else date_previous
-        context['parsed_on'] = str(datetime.datetime.strptime(date_previous, "%Y.%m.%d").date()) if \
-            date_previous else str(datetime.datetime.now().date() - relativedelta(months=1))
+        if date_previous is None:
+            raise Exception("Date not in file name!")
+        else:
+            context['parsed_on'] = str(datetime.datetime.strptime(date_previous, "%Y.%m.%d").date())
         parsed_data = list()
 
         with open(input_file_path, newline='') as csvfile:

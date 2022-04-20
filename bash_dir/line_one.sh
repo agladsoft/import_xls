@@ -1,22 +1,73 @@
+#!/bin/bash
 echo ${XL_IDP_ROOT}
 xls_path="${XL_IDP_ROOT}/lines_${XL_IMPORT_TERMINAL}/one/"
-echo $xls_path
+#xls_path=/home/timur/Anton_project/import_xls-master/НУТЭП\ -\ ноябрь/ONE
+echo "$xls_path"
+csv_path="${xls_path}"/csv
+if [ ! -d "$csv_path" ]; then
+  mkdir "${csv_path}"
+fi
 
-# xls_path=/home/ruscon/Import_xls/НУТЭП\ -\ ноябрь/ONE/
-mkdir "${xls_path}"/csv
-mkdir "${xls_path}"/json
+#fail_path="${xls_path}"/fail
+#if [ ! -d "$fail_path" ]; then
+#  mkdir "${fail_path}"
+#fi
 
 done_path="${xls_path}"/done
-mkdir "${done_path}"
+if [ ! -d "$done_path" ]; then
+  mkdir "${done_path}"
+fi
 
-find "${xls_path}" -maxdepth 1 -type f \( -name "*.xls*" -or -name "*.XLS*" \) ! -newermt '3 seconds ago' -print0 | while read -d $'\0' file
+json_path="${xls_path}"/json
+if [ ! -d "$json_path" ]; then
+  mkdir "${json_path}"
+fi
+
+find "${xls_path}" -maxdepth 1 -type f \( -name "*.xls*" -or -name "*.XLS*" -or -name "*.xml" \) ! -newermt '3 seconds ago' -print0 | while read -d $'\0' file
 do
-    echo "'${file}'";
-    csv_name="${xls_path}/csv/$(basename "${file}").csv"
-    echo "Will convert Excel '${file}' to CSV '${csv_name}'"
-    in2csv "${file}" > "${csv_name}"
-    python3 ../scripts_for_bash/"one.py" "${csv_name}" "${xls_path}"/json
-        
-    mv "${file}" "${done_path}"
-    mv "${csv_name}" "${done_path}"
+
+  if [[ "${file}" == *"error_"* ]];
+  then
+    echo "Contains an error in ${file}"
+    continue
+  fi
+
+	mime_type=$(file -b --mime-type "$file")
+  echo "'${file} - ${mime_type}'"
+
+  csv_name="${csv_path}/$(basename "${file}").csv"
+
+  if [[ ${mime_type} = "application/vnd.ms-excel" ]]
+  then
+    echo "Will convert XLS '${file}' to CSV '${csv_name}'"
+    in2csv -f xls "${file}" > "${csv_name}"
+  elif [[ ${mime_type} = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ]]
+  then
+    echo "Will convert XLSX or XLSM '${file}' to CSV '${csv_name}'"
+    in2csv -f xlsx "${file}" > "${csv_name}"
+  else
+    echo "ERROR: unsupported format ${mime_type}"
+    mv "${file}" "${xls_path}/error_$(basename "${file}")"
+    continue
+  fi
+
+  if [ $? -eq 0 ]
+	then
+	  mv "${file}" "${done_path}"
+	else
+	  mv "${file}" "${xls_path}/error_$(basename "${file}")"
+	  echo "ERROR during convertion ${file} to csv!"
+	  continue
+	fi
+
+	# Will convert csv to json
+	python3 ../scripts_for_bash/one.py "${csv_name}" "${json_path}"
+
+  if [ $? -eq 0 ]
+	then
+	  mv "${csv_name}" "${done_path}"
+	else
+	  mv "${csv_name}" "${xls_path}/error_$(basename "${csv_name}")"
+	fi
+
 done
