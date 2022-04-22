@@ -23,6 +23,7 @@ def merge_two_dicts(x, y):
 
 def isDigit(x):
     try:
+        x = re.sub('(?<=\d) (?=\d)', '', x)
         float(x)
         return True
     except ValueError:
@@ -85,7 +86,7 @@ class OoclCsv(object):
                     range_id = line[0:2]
                     match_id = [isDigit(id) for id in range_id]
                     add_id = match_id.index(True)
-                    line_id = str(float(range_id[add_id]))
+                    line_id = str(range_id[add_id])
                     if isDigit(line_id):
                         logging.info(u"Ok, line looks common...")
                         parsed_record = dict()

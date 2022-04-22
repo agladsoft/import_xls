@@ -20,14 +20,6 @@ def merge_two_dicts(x, y):
     return z
 
 
-def isDigit(x):
-    try:
-        float(x)
-        return True
-    except ValueError:
-        return False
-
-
 class OoclCsv(object):
 
     def __init__(self):

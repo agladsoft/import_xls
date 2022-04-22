@@ -27,6 +27,7 @@ def merge_two_dicts(x, y):
 
 def isDigit(x):
     try:
+        x = re.sub('(?<=\d) (?=\d)', '', x)
         float(x)
         return True
     except ValueError:
