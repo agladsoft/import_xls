@@ -103,7 +103,7 @@ class OoclCsv(object):
                         container_type = re.findall("[A-Z a-z]{1,4}", line[add_id + 1].strip())[0]
                         parsed_record['container_size'] = container_size
                         parsed_record['container_type'] = container_type
-                        if line[4 - add_id]:
+                        if line[5 - add_id]:
                             parsed_record['goods_weight'] = float(line[add_id + 5]) if line[add_id + 5] else None
                             parsed_record['package_number'] = int(float(line[add_id + 6])) if line[add_id + 6] else None
                             parsed_record['goods_name_rus'] = line[add_id + 7].strip()
@@ -160,8 +160,8 @@ class OoclCsv(object):
         # outputStream.write(bytearray(json.dumps(parsed_data, indent=4).encode('utf-8')))
         return parsed_data
 
-# input_file_path = "/home/timur/PycharmWork/PORT_LINE_CSV/НУТЭП - ноябрь/MILAHA/csv/LAUST MAERSK от 02.11.21.xls.csv"
-# output_folder = "/home/timur/PycharmWork/PORT_LINE_CSV/НУТЭП - ноябрь/MILAHA/json/"
+# input_file_path = "/home/timur/Anton_project/import_xls-master/НУТЭП - ноябрь/MILAHA/csv/2022.01 Копия Разнарядка MLH HANSA LIMBURG от 22.01.22.xls.csv"
+# output_folder = "/home/timur/Anton_project/import_xls-master/НУТЭП - ноябрь/MILAHA/json"
 input_file_path = os.path.abspath(sys.argv[1])
 output_folder = sys.argv[2]
 basename = os.path.basename(input_file_path)
