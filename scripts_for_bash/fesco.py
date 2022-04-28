@@ -101,8 +101,8 @@ class OoclCsv(object):
                             container_type = re.findall("[A-Z a-z]{1,4}", line[2].strip())[0]
                             parsed_record['container_size'] = int(container_size)
                             parsed_record['container_type'] = container_type
-                            parsed_record['container_number'] = line[1].strip()
-                            last_container_number.append(line[1].strip())
+                            parsed_record['container_number'] = re.sub('(?<=\w) (?=\d)', '', line[1].strip())
+                            last_container_number.append(re.sub('(?<=\w) (?=\d)', '', line[1].strip()))
                             last_container_size.append(int(container_size))
                             last_container_type.append(container_type)
                             record = add_value_to_dict(parsed_record, line[7], line[5], line[6].strip(),
@@ -130,8 +130,8 @@ class OoclCsv(object):
         return parsed_data
 
 
-# dir_name = 'НУТЭП - ноябрь/ADMIRAL/csv/'
-# input_file_path = 'ADMIRAL SUN от 11.11.21.XLS.csv'
+# input_file_path = '/home/timur/Anton_project/import_xls-master/НУТЭП - ноябрь/FESCO/csv/2022.03 Копия Уведомление о прибытии в НУТЭП - ADILIA 1  ADL0421.xlsm.csv'
+# output_folder = '/home/timur/Anton_project/import_xls-master/НУТЭП - ноябрь/FESCO/json'
 input_file_path = os.path.abspath(sys.argv[1])
 output_folder = sys.argv[2]
 basename = os.path.basename(input_file_path)
