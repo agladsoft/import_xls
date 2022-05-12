@@ -5,7 +5,6 @@ import logging
 import re
 import sys
 import json
-from dateutil.relativedelta import relativedelta
 
 month_list = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября",
          "декабря"]
@@ -54,6 +53,7 @@ class OoclCsv(object):
         pass
 
     def process(self, input_file_path):
+        logging.info(u'file is {} {}'.format(os.path.basename(input_file_path), datetime.datetime.now()))
         context = dict(line=os.path.basename(__file__).replace(".py", ""))
         context['terminal'] = os.environ.get('XL_IMPORT_TERMINAL')
         # context['parsed_on'] = str(datetime.datetime.now().date() - relativedelta(months=1))

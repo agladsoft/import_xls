@@ -3,16 +3,17 @@ import os
 import sys
 import logging
 import json
+import datetime
 
+if not os.path.exists("logging"):
+    os.mkdir("logging")
 
-if not os.path.exists("../logging"):
-    os.mkdir("../logging")
-
-logging.basicConfig(filename="../logging/{}.log".format(os.path.basename(__file__)), level=logging.DEBUG)
+logging.basicConfig(filename="logging/{}.log".format(os.path.basename(__file__)), level=logging.DEBUG)
 log = logging.getLogger()
 
 
 def process(input_file_path):
+    logging.info(u'file is {} {}'.format(os.path.basename(input_file_path), datetime.datetime.now()))
     parsed_data = list()
     with open(input_file_path, newline='') as csvfile:
         lines = list(csv.reader(csvfile))

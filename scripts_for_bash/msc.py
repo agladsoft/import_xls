@@ -5,7 +5,6 @@ import re
 import logging
 import sys
 import json
-from dateutil.relativedelta import relativedelta
 
 if not os.path.exists("logging"):
     os.mkdir("logging")
@@ -96,8 +95,9 @@ class OoclCsv(object):
         pass
 
     def process(self, input_file_path):
+        logging.info(u'file is {} {}'.format(os.path.basename(input_file_path), datetime.datetime.now()))
         context = dict(line=os.path.basename(__file__).replace(".py", ""))
-        context['terminal'] = 'nle'
+        context['terminal'] = os.environ.get('XL_IMPORT_TERMINAL')
         date_previous = re.match('\d{2,4}.\d{1,2}', os.path.basename(input_file_path))
         date_previous = date_previous.group() + '.01' if date_previous else date_previous
         if date_previous is None:
