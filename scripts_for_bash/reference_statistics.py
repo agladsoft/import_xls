@@ -1,4 +1,5 @@
 import csv
+import datetime
 import json
 import os
 import re
@@ -66,7 +67,7 @@ context = dict()
 
 
 def process(input_file_path):
-    logging.info(u'file is {}'.format(os.path.basename(input_file_path)))
+    logging.info(u'file is {} {}'.format(os.path.basename(input_file_path), datetime.datetime.now()))
     columns = defaultdict(list)  # each value in each column is appended to a list
     with open(input_file_path) as file:
         reader = csv.DictReader(file)  # read rows into a dictionary format
