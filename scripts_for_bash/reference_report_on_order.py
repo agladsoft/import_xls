@@ -4,7 +4,7 @@ import logging
 import re
 import sys
 import json
-
+import datetime
 
 if not os.path.exists("logging"):
     os.mkdir("logging")
@@ -28,7 +28,7 @@ class OoclCsv(object):
         pass
 
     def process(self, input_file_path):
-
+        logging.info(u'file is {} {}'.format(os.path.basename(input_file_path), datetime.datetime.now()))
         parsed_data = list()
         with open(input_file_path, newline='') as csvfile:
             lines = list(csv.reader(csvfile))

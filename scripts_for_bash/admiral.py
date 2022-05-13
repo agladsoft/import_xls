@@ -5,7 +5,6 @@ import logging
 import re
 import sys
 import json
-from dateutil.relativedelta import relativedelta
 
 month_list = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября",
          "декабря"]
@@ -54,6 +53,7 @@ class OoclCsv(object):
         pass
 
     def process(self, input_file_path):
+        logging.info(u'file is {} {}'.format(os.path.basename(input_file_path), datetime.datetime.now()))
         context = dict(line=os.path.basename(__file__).replace(".py", ""))
         context['terminal'] = os.environ.get('XL_IMPORT_TERMINAL')
         # context['parsed_on'] = str(datetime.datetime.now().date() - relativedelta(months=1))
@@ -67,17 +67,22 @@ class OoclCsv(object):
         var_name_ship = "ВЫГРУЗКА ГРУЗА С Т/Х "
         with open(input_file_path, newline='') as csvfile:
             lines = list(csv.reader(csvfile))
-
+        add_voyage = 0
         logging.info(u'lines type is {} and contain {} items'.format(type(lines), len(lines)))
         logging.info(u'First 3 items are: {}'.format(lines[:3]))
         for ir, line in enumerate(lines):
             logging.info(u'line {} is {}'.format(ir, line))
             str_list = list(filter(bool, line))
             if ir == 4:
-                logging.info(u"Will parse ship and trip in value '{}'...".format(line[1]))
+                logging.info(u"Will parse ship and trip in value '{}'...".format(line[add_voyage]))
                 split_on = u'рейс:'
                 logging.info(u"substring to split on is '{}'".format(split_on))
-                ship_and_voyage_str = line[1].replace(var_name_ship, "")
+
+                range_voyage = line[0:2]
+                match_voyage = [bool(voyage) for voyage in range_voyage]
+                add_voyage = match_voyage.index(True)
+
+                ship_and_voyage_str = line[add_voyage].replace(var_name_ship, "")
                 ship_and_voyage_list = ship_and_voyage_str.rsplit(' ', 1)
                 context['ship'] = ship_and_voyage_list[0]
                 context['voyage'] = re.sub(r'[^\w\s]', '', ship_and_voyage_list[1])
@@ -85,8 +90,8 @@ class OoclCsv(object):
                 continue
             if ir == 6:
                 try:
-                    logging.info("Will parse date in value {}...".format(line[1].rsplit(': ', 1)[1]))
-                    month = line[1].rsplit(':  ', 1)[1].rsplit(' ', 3)
+                    logging.info("Will parse date in value {}...".format(line[add_voyage].rsplit(': ', 1)[1]))
+                    month = line[add_voyage].rsplit(':  ', 1)[1].rsplit(' ', 3)
                     if month[1] in month_list:
                         month_digit = month_list.index(month[1]) + 1
                     date = datetime.datetime.strptime(month[2] + '-' + str(month_digit) + '-' + month[0], "%Y-%m-%d")
@@ -96,44 +101,86 @@ class OoclCsv(object):
                 except:
                     context['date'] = '1970-01-01'
                     continue
-            if ir > 11 and bool(str_list):
+            if ir > 8 and bool(str_list):
                 try:
                     logging.info(u"Checking if we are on common line with number...")
                     parsed_record = dict()
-                    if isDigit(line[1]) or (not line[0] and not line[1] and not line[2] and not line[3]):
+                    if isDigit(line[add_voyage]) or (not line[add_voyage] and not line[add_voyage + 1] and not line[
+                        add_voyage + 2] and not line[add_voyage + 5]):
                         try:
-                            container_size = re.findall("\d{2}", line[2].strip())[0]
-                            container_type = re.findall("[A-Z a-z]{1,4}", line[2].strip())[0]
+                            container_size = re.findall("\d{2}", line[add_voyage + 1].strip())[0]
+                            container_type = re.findall("[A-Z a-z]{1,4}", line[add_voyage + 1].strip())[0]
                             parsed_record['container_size'] = int(container_size)
                             parsed_record['container_type'] = container_type
-                            parsed_record['container_number'] = line[3]
-                            record = add_value_to_dict(parsed_record, line[7], line[8], line[9].strip(),
-                                                       line[13].strip(),
-                                                       line[14].strip(),
-                                                       line[10].strip(), line[11].strip(),
-                                                       line[12].strip(), context)
+                            parsed_record['container_number'] = line[add_voyage + 2]
+                            record = add_value_to_dict(parsed_record,
+                                                       line[add_voyage + 6],
+                                                       line[add_voyage + 7],
+                                                       line[add_voyage + 8].strip(),
+                                                       line[add_voyage + 12].strip(),
+                                                       line[add_voyage + 13].strip(),
+                                                       line[add_voyage + 9].strip(),
+                                                       line[add_voyage + 10].strip(),
+                                                       line[add_voyage + 11].strip(), context)
                             logging.info(u"record is {}".format(record))
                             parsed_data.append(record)
                         except IndexError:
-                            parsed_record['container_size'] = line[2]
-                            parsed_record['container_type'] = line[2]
-                            parsed_record['container_number'] = line[3]
-                            record = add_value_to_dict(parsed_record, line[7], line[8], line[9].strip(),
-                                                       line[13].strip(),
-                                                       line[14].strip(),
-                                                       line[10].strip(), line[11].strip(),
-                                                       line[12].strip(), context)
+                            parsed_record['container_size'] = line[add_voyage + 1]
+                            parsed_record['container_type'] = line[add_voyage + 1]
+                            parsed_record['container_number'] = line[add_voyage + 2]
+                            record = add_value_to_dict(parsed_record,
+                                                       line[add_voyage + 6],
+                                                       line[add_voyage + 7],
+                                                       line[add_voyage + 8].strip(),
+                                                       line[add_voyage + 12].strip(),
+                                                       line[add_voyage + 13].strip(),
+                                                       line[add_voyage + 9].strip(),
+                                                       line[add_voyage + 10].strip(),
+                                                       line[add_voyage + 11].strip(), context)
                             logging.info(u"record is {}".format(record))
                             parsed_data.append(record)
                 except Exception as ex:
-                    continue
+                    logging.info(u"Checking if we are on common line with number...")
+                    parsed_record = dict()
+                    if isDigit(line[add_voyage]) or (not line[add_voyage] and not line[add_voyage + 1] and not line[
+                        add_voyage + 2] and not line[add_voyage + 4]):
+                        try:
+                            container_size = re.findall("\d{2}", line[add_voyage + 1].strip())[0]
+                            container_type = re.findall("[A-Z a-z]{1,4}", line[add_voyage + 1].strip())[0]
+                            parsed_record['container_size'] = int(container_size)
+                            parsed_record['container_type'] = container_type
+                            parsed_record['container_number'] = line[add_voyage + 2]
+                            record = add_value_to_dict(parsed_record,
+                                                       line[add_voyage + 5],
+                                                       line[add_voyage + 6],
+                                                       line[add_voyage + 7].strip(),
+                                                       line[add_voyage + 11].strip(),
+                                                       line[add_voyage + 12].strip(),
+                                                       line[add_voyage + 8].strip(),
+                                                       line[add_voyage + 9].strip(),
+                                                       line[add_voyage + 10].strip(), context)
+                            logging.info(u"record is {}".format(record))
+                            parsed_data.append(record)
+                        except IndexError:
+                            parsed_record['container_size'] = line[add_voyage + 1]
+                            parsed_record['container_type'] = line[add_voyage + 1]
+                            parsed_record['container_number'] = line[add_voyage + 2]
+                            record = add_value_to_dict(parsed_record,
+                                                       line[add_voyage + 5],
+                                                       line[add_voyage + 6],
+                                                       line[add_voyage + 7].strip(),
+                                                       line[add_voyage + 11].strip(),
+                                                       line[add_voyage + 12].strip(),
+                                                       line[add_voyage + 8].strip(),
+                                                       line[add_voyage + 9].strip(),
+                                                       line[add_voyage + 10].strip(), context)
+                            logging.info(u"record is {}".format(record))
+                            parsed_data.append(record)
 
         logging.error(u"About to write parsed_data to output: {}".format(parsed_data))
         return parsed_data
 
 
-# dir_name = "/home/timur/PycharmWork/PORT_LINE_CSV/НУТЭП - ноябрь/ADMIRAL/csv/"
-# input_file_path = "ADMIRAL SUN от 11.11.21.XLS.csv"
 input_file_path = os.path.abspath(sys.argv[1])
 output_folder = sys.argv[2]
 basename = os.path.basename(input_file_path)

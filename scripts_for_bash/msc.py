@@ -5,7 +5,6 @@ import re
 import logging
 import sys
 import json
-from dateutil.relativedelta import relativedelta
 
 if not os.path.exists("logging"):
     os.mkdir("logging")
@@ -41,7 +40,7 @@ def max_numbers(s):
     return max(float(i) for i in s.replace(',', '.').split())
 
 
-def add_data_to_parced(parsed_data, line, context, num1, num2):
+def add_data_to_parced(parsed_data, line, context, num1, num2, num3, num4, num5, num6, num7):
     global add_id_2
     try:
         logging.info(u"Checking if we are on common line with number...")
@@ -56,14 +55,14 @@ def add_data_to_parced(parsed_data, line, context, num1, num2):
             container_size_and_type = re.findall("\w{1,2}", line[add_id + 2].strip())
             parsed_record['container_size'] = int(float(container_size_and_type[0]))
             parsed_record['container_type'] = container_size_and_type[1]
-            parsed_record['goods_weight'] = max_numbers(line[add_id + 7].replace(' ', '')) if line[add_id + 7] else None
-            parsed_record['package_number'] = int(isDigit(line[add_id + 5])[1]) if line[add_id + 5] else None
             parsed_record['goods_name_rus'] = line[add_id + 4].strip()
-            parsed_record['consignment'] = line[add_id + 8].strip()
-            parsed_record['shipper'] = line[add_id + num1].strip()
-            parsed_record['shipper_country'] = line[add_id + num2].strip()
-            parsed_record['consignee'] = line[add_id + 9].strip()
-            parsed_record['city'] = line[add_id + 10].strip()
+            parsed_record['package_number'] = int(isDigit(line[add_id + num1])[1]) if line[add_id + 5] else None
+            parsed_record['goods_weight'] = max_numbers(line[add_id + num2].replace(' ', '')) if line[add_id + 7] else None
+            parsed_record['consignment'] = line[add_id + num3].strip()
+            parsed_record['consignee'] = line[add_id + num4].strip()
+            parsed_record['city'] = line[add_id + num5].strip()
+            parsed_record['shipper'] = line[add_id + num6].strip()
+            parsed_record['shipper_country'] = line[add_id + num7].strip()
             record = merge_two_dicts(context, parsed_record)
             logging.info(u"record is {}".format(record))
             parsed_data.append(record)
@@ -75,16 +74,14 @@ def add_data_to_parced(parsed_data, line, context, num1, num2):
             container_size_and_type = re.findall("\w{1,2}", line[add_id_2 + 2].strip())
             parsed_record['container_size'] = int(float(container_size_and_type[0]))
             parsed_record['container_type'] = container_size_and_type[1]
-            parsed_record['goods_weight'] = max_numbers(line[add_id_2 + 7].replace(' ', '')) if line[add_id_2 + 7] \
-                else \
-                None
-            parsed_record['package_number'] = int(isDigit(line[add_id_2 + 5])[1]) if line[add_id_2 + 5] else None
             parsed_record['goods_name_rus'] = line[add_id_2 + 4].strip()
-            parsed_record['consignment'] = line[add_id_2 + 8].strip()
-            parsed_record['shipper'] = line[add_id_2 + num1].strip()
-            parsed_record['shipper_country'] = line[add_id_2 + num2].strip()
-            parsed_record['consignee'] = line[add_id_2 + 9].strip()
-            parsed_record['city'] = line[add_id_2 + 10].strip()
+            parsed_record['package_number'] = int(isDigit(line[add_id_2 + num1])[1]) if line[add_id_2 + 5] else None
+            parsed_record['goods_weight'] = max_numbers(line[add_id_2 + num2].replace(' ', '')) if line[add_id_2 + 7] else None
+            parsed_record['consignment'] = line[add_id_2 + num3].strip()
+            parsed_record['consignee'] = line[add_id_2 + num4].strip()
+            parsed_record['city'] = line[add_id_2 + num5].strip()
+            parsed_record['shipper'] = line[add_id_2 + num6].strip()
+            parsed_record['shipper_country'] = line[add_id_2 + num7].strip()
             record = merge_two_dicts(context, parsed_record)
             logging.info(u"record is {}".format(record))
             parsed_data.append(record)
@@ -96,8 +93,16 @@ class OoclCsv(object):
         pass
 
     def process(self, input_file_path):
+        country_zatarka = False
+        shipper_line = False
+        weight_tara_and_city = False
+        regime = False
+        weight_tara_and_regime = False
+
+        logging.info(u'file is {} {}'.format(os.path.basename(input_file_path), datetime.datetime.now()))
         context = dict(line=os.path.basename(__file__).replace(".py", ""))
-        context['terminal'] = 'nle'
+        context['terminal'] = os.environ.get('XL_IMPORT_TERMINAL')
+        context['date'] = '1970-01-01'
         date_previous = re.match('\d{2,4}.\d{1,2}', os.path.basename(input_file_path))
         date_previous = date_previous.group() + '.01' if date_previous else date_previous
         if date_previous is None:
@@ -124,13 +129,12 @@ class OoclCsv(object):
                 context['ship'] = ' '.join(ship_and_voyage[:-1])
                 context['voyage'] = ' '.join(ship_and_voyage[-1:])
                 logging.info(u"context now is {}".format(context))
-            if ir == 4 and line[2] and line[4]:
+            if 10 > ir > 1 and 'Название судна:' in line[0]:
                 logging.info(u"Will parse ship and trip in value '{}'...".format(line[2], line[4]))
                 context['ship'] = line[2].strip()
                 context['voyage'] = line[4].strip()
                 logging.info(u"context now is {}".format(context))
-                continue
-            if ir == 7:
+            if 10 > ir > 1 and ('Дата прихода:' in line[0] or 'ДАТА ПРИХОДА:' in line[0]):
                 try:
                     logging.info("Will parse date in value {}...".format(line[2]))
                     date = datetime.datetime.strptime(line[2], "%d.%m.%Y")
@@ -138,25 +142,31 @@ class OoclCsv(object):
                 except:
                     context['date'] = '1970-01-01'
                 logging.info(u"context now is {}".format(context))
-                continue
-            if ir > 8 and bool(str_list):
+            if ir > 2 and bool(str_list):
                 try:
-                    if re.match("№", line[0]):
-                        regime = line[11]
-                    add_data_to_parced(parsed_data, line, context, 12, 14)
-                except:
-                    if regime != "Режим":
-                        try:
-                            add_data_to_parced(parsed_data, line, context, 11, 13)
-                        except:
-                            continue
-                    continue
+                    if re.match("Страна затарки", line[12]) or country_zatarka:
+                        country_zatarka = True
+                        add_data_to_parced(parsed_data, line, context, 5, 7, 8, 9, 9, 10, 12)
+                    elif re.match("Грузоотправитель", line[12]) or shipper_line:
+                        shipper_line = True
+                        add_data_to_parced(parsed_data, line, context, 5, 7, 8, 9, 10, 12, 14)
+                    elif (re.match("ВесТара", line[12]) and re.match("Город", line[10])) or weight_tara_and_city:
+                        weight_tara_and_city = True
+                        add_data_to_parced(parsed_data, line, context, 5, 7, 8, 9, 10, 11, 13)
+                    elif re.match("Режим", line[12]) or regime:
+                        regime = True
+                        add_data_to_parced(parsed_data, line, context, 6, 8, 9, 10, 11, 13, 13)
+                    elif (re.match("ВесТара", line[12]) and re.match("Режим", line[10])) or weight_tara_and_regime:
+                        weight_tara_and_regime = True
+                        add_data_to_parced(parsed_data, line, context, 5, 7, 8, 9, 11, 11, 13)
+                except Exception as ex:
+                    pass
 
         logging.error(u"About to write parsed_data to output: {}".format(parsed_data))
         return parsed_data
 
 
-# input_file_path = '/home/timur/Anton_project/import_xls-master/MSC_НУТЭП_ДЕК.2020/csv/2022.01 Разнарядка MED AYDIN AO202A .xls.csv'
+# input_file_path = '/home/timur/Anton_project/import_xls-master/MSC_НУТЭП_ДЕК.2020/csv/2022.04 Копия Разнарядка MSC MASHA 3 AC216R.xls.csv'
 # output_folder = '/home/timur/Anton_project/import_xls-master/MSC_НУТЭП_ДЕК.2020/json'
 input_file_path = os.path.abspath(sys.argv[1])
 output_folder = sys.argv[2]

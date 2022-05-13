@@ -1,9 +1,17 @@
 import csv
+import datetime
 import json
 import os
 import re
 import sys
+import logging
 from collections import defaultdict
+
+if not os.path.exists("logging"):
+    os.mkdir("logging")
+
+logging.basicConfig(filename="logging/{}.log".format(os.path.basename(__file__)), level=logging.DEBUG)
+log = logging.getLogger()
 
 month_list = ["ЯНВАРЬ", "ФЕВРАЛЬ", "МАРТ", "АПРЕЛЬ", "МАЙ", "ИЮНЬ", "ИЮЛЬ", "АВГУСТ", "СЕНТЯБРЬ", "ОКТЯБРЬ", "НОЯБРЬ",
               "ДЕКАБРЬ"]
@@ -50,6 +58,7 @@ def parse_column(parsed_data, enum, column0, column1, enum_for_value):
     line = {'line': columns[column0][enum + enum_for_value].rsplit('/', 1)[0]}
     x = {**line, **type, **count}
     record = merge_two_dicts(context, x)
+    logging.info(u'data is {}'.format(record))
     parsed_data.append(record)
 
 
@@ -58,6 +67,7 @@ context = dict()
 
 
 def process(input_file_path):
+    logging.info(u'file is {} {}'.format(os.path.basename(input_file_path), datetime.datetime.now()))
     columns = defaultdict(list)  # each value in each column is appended to a list
     with open(input_file_path) as file:
         reader = csv.DictReader(file)  # read rows into a dictionary format

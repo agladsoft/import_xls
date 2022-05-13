@@ -4,7 +4,7 @@ import logging
 import sys
 import json
 from itertools import tee
-
+import datetime
 
 month_list = ["январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август", "сентябрь", "октябрь", "ноябрь",
          "декабрь"]
@@ -32,6 +32,7 @@ def pairwise(iterable):
 
 
 def process(input_file_path):
+    logging.info(u'file is {} {}'.format(os.path.basename(input_file_path), datetime.datetime.now()))
     context = dict()
     parsed_data = list()
     with open(input_file_path, newline='') as csvfile:
