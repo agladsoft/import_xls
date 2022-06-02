@@ -44,6 +44,8 @@ def add_value_to_dict(parsed_record, goods_weight, package_number, name_rus, con
     parsed_record['shipper'] = shipper
     parsed_record['shipper_country'] = shipper_country
     parsed_record['consignee'] = consignee
+    # parsed_record['original_file_name'] = os.path.basename(input_file_path)
+    # parsed_record['original_file_parsed_on'] = str(datetime.datetime.now())
     return merge_two_dicts(context, parsed_record)
 
 
@@ -64,7 +66,7 @@ class OoclCsv(object):
         else:
             context['parsed_on'] = str(datetime.datetime.strptime(date_previous, "%Y.%m.%d").date())
         parsed_data = list()
-        var_name_ship = "ВЫГРУЗКА ГРУЗА С Т/Х "
+        var_name_ship = "ВЫГРУЗКА ГРУЗА С "
         with open(input_file_path, newline='') as csvfile:
             lines = list(csv.reader(csvfile))
         add_voyage = 0
