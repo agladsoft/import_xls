@@ -143,7 +143,7 @@ class OoclCsv(object):
                             parsed_data.append(record)
                 except Exception as ex:
                     if not line[add_voyage + 0] and not line[add_voyage + 1] and not line[add_voyage + 2]:
-                        if line[add_id:5][-1]:
+                        if line[add_id:6][-1]:
                             record = add_value_to_dict(parsed_record, line[add_id + 5],
                                                        line[add_id + 6],
                                                        line[add_id + 7].strip(),
@@ -172,8 +172,9 @@ class OoclCsv(object):
         # outputStream.write(bytearray(json.dumps(parsed_data, indent=4).encode('utf-8')))
         return parsed_data
 
-# input_file_path = "/home/timur/Anton_project/import_xls-master/НУТЭП - ноябрь/MILAHA/csv/2021.11 LAUST MAERSK от 02.11.21.xls.csv"
-# output_folder = "/home/timur/Anton_project/import_xls-master/НУТЭП - ноябрь/MILAHA/json"
+
+# input_file_path = "/home/timur/Anton_project/import_xls-master/НУТЭП/milaha/done/2022.05 Копия TK Разнарядка POLA SOFIA от 28.05.22.xlsx.csv"
+# output_folder = "/home/timur/Anton_project/import_xls-master/НУТЭП/milaha/json"
 input_file_path = os.path.abspath(sys.argv[1])
 output_folder = sys.argv[2]
 basename = os.path.basename(input_file_path)
