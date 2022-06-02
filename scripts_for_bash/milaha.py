@@ -143,7 +143,7 @@ class OoclCsv(object):
                             parsed_data.append(record)
                 except Exception as ex:
                     if not line[add_voyage + 0] and not line[add_voyage + 1] and not line[add_voyage + 2]:
-                        if line[add_id:6][-1]:
+                        if line[add_id:12][-1]:
                             record = add_value_to_dict(parsed_record, line[add_id + 5],
                                                        line[add_id + 6],
                                                        line[add_id + 7].strip(),
@@ -180,7 +180,6 @@ output_folder = sys.argv[2]
 basename = os.path.basename(input_file_path)
 output_file_path = os.path.join(output_folder, basename+'.json')
 print("output_file_path is {}".format(output_file_path))
-
 
 parsed_data = OoclCsv().process(input_file_path)
 
