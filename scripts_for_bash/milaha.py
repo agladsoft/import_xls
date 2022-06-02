@@ -143,7 +143,7 @@ class OoclCsv(object):
                             parsed_data.append(record)
                 except Exception as ex:
                     if not line[add_voyage + 0] and not line[add_voyage + 1] and not line[add_voyage + 2]:
-                        if line[add_id:6][-1]:
+                        if line[add_id:12][-1]:
                             record = add_value_to_dict(parsed_record, line[add_id + 5],
                                                        line[add_id + 6],
                                                        line[add_id + 7].strip(),
