@@ -25,6 +25,15 @@ def merge_two_dicts(x, y):
     return z
 
 
+def isDigit(x):
+    try:
+        x = re.sub('(?<=\d) (?=\d)', '', x)
+        float(x)
+        return True
+    except ValueError:
+        return False
+
+
 class OoclCsv(object):
 
     def __init__(self):
@@ -41,7 +50,7 @@ class OoclCsv(object):
         else:
             context['parsed_on'] = str(datetime.datetime.strptime(date_previous, "%Y.%m.%d").date())
         parsed_data = list()
-        var_name_ship = "ВЫГРУЗКА ГРУЗА С Т/Х "
+        var_name_ship = "ВЫГРУЗКА ГРУЗА С "
         with open(input_file_path, newline='') as csvfile:
             lines = list(csv.reader(csvfile))
 
@@ -52,10 +61,14 @@ class OoclCsv(object):
             logging.info(u'line {} is {}'.format(ir, line))
             str_list = list(filter(bool, line))
             if ir == 4:
-                logging.info(u"Will parse ship and trip in value '{}'...".format(line[1]))
                 split_on = u'рейс:'
                 logging.info(u"substring to split on is '{}'".format(split_on))
-                ship_and_voyage_str = line[1].strip().replace(var_name_ship, "")
+
+                range_voyage = line[0:2]
+                match_voyage = [bool(voyage) for voyage in range_voyage]
+                add_voyage = match_voyage.index(True)
+
+                ship_and_voyage_str = line[add_voyage].strip().replace(var_name_ship, "")
                 ship_and_voyage_list = ship_and_voyage_str.rsplit(' ', 1)
                 context['ship'] = ship_and_voyage_list[0]
                 context['voyage'] = re.sub(r'[^\w\s]','', ship_and_voyage_list[1])
@@ -63,8 +76,8 @@ class OoclCsv(object):
                 continue
             if ir == 6:
                 try:
-                    logging.info("Will parse date in value {}...".format(line[1].rsplit(':  ', 1)[1]))
-                    month = line[1].rsplit(':  ', 1)[1].rsplit(' ', 3)
+                    logging.info("Will parse date in value {}...".format(line[add_voyage].rsplit(':  ', 1)[1]))
+                    month = line[add_voyage].rsplit(':  ', 1)[1].rsplit(' ', 3)
                     if month[1] in month_list:
                         month_digit = month_list.index(month[1]) + 1
                     date = datetime.datetime.strptime(month[2] + '-' + str(month_digit) + '-' + month[0], "%Y-%m-%d")
@@ -75,41 +88,47 @@ class OoclCsv(object):
                     context['date'] = '1970-01-01'
                     continue
             if ir > 8 and bool(str_list):  # Была на 11 итерация
-                logging.info(u"Checking if we are on common line with number...")
-                line_id = re.match('\d{1,4}', line[1])
-                if bool(line_id):
-                    try:
-                        logging.info(u"Ok, line looks common...")
-                        parsed_record = dict()
-                        parsed_record['container_number'] = line[3].strip()
-                        container_size = re.findall("\d{2}", line[2].strip())[0]
-                        container_type = re.findall("[A-Z a-z]{1,4}", line[2].strip())[0]
-                        parsed_record['container_size'] = int(container_size)
-                        parsed_record['container_type'] = container_type
-                        parsed_record['goods_weight'] = float(line[7]) if line[7] else None
-                        parsed_record['package_number'] = int(float(line[8])) if line[8] else None
-                        parsed_record['goods_name_rus'] = line[9].strip()
-                        parsed_record['shipper'] = line[10].strip()
-                        parsed_record['shipper_country'] = line[11].strip()
-                        parsed_record['consignee'] = line[12].strip()
-                        parsed_record['consignment'] = line[13].strip()
-                        parsed_record['city'] = line[14].strip()
-                        record = merge_two_dicts(context, parsed_record)
-                        logging.info(u"record is {}".format(record))
-                        parsed_data.append(record)
-                    except:
-                        logging.info(u" Ошибка (не записал строку) - {}".format(line))
-                        continue
+                try:
+                    logging.info(u"Checking if we are on common line with number...")
+                    line_id = re.match('\d{1,4}', line[add_voyage])
+                    range_id = line[0:2]
+                    match_id = [isDigit(id) for id in range_id]
+                    add_id = match_id.index(True)
+                    if bool(line_id):
+                        try:
+                            logging.info(u"Ok, line looks common...")
+                            parsed_record = dict()
+                            parsed_record['container_number'] = line[add_id + 2].strip()
+                            container_size = re.findall("\d{2}", line[add_id + 1].strip())[0]
+                            container_type = re.findall("[A-Z a-z]{1,4}", line[add_id + 1].strip())[0]
+                            parsed_record['container_size'] = int(container_size)
+                            parsed_record['container_type'] = container_type
+                            parsed_record['goods_weight'] = float(line[add_id + 5]) if line[add_id + 5] else None
+                            parsed_record['package_number'] = int(float(line[add_id + 6])) if line[add_id + 6] else None
+                            parsed_record['goods_name_rus'] = line[add_id + 7].strip()
+                            parsed_record['shipper'] = line[add_id + 8].strip()
+                            parsed_record['shipper_country'] = line[add_id + 9].strip()
+                            parsed_record['consignee'] = line[add_id + 10].strip()
+                            parsed_record['consignment'] = line[add_id + 11].strip()
+                            parsed_record['city'] = line[add_id + 12].strip()
+                            record = merge_two_dicts(context, parsed_record)
+                            logging.info(u"record is {}".format(record))
+                            parsed_data.append(record)
+                        except:
+                            logging.info(u" Ошибка (не записал строку) - {}".format(line))
+                            continue
+                except:
+                    pass
 
         logging.error(u"About to write parsed_data to output: {}".format(parsed_data))
         # outputStream.write(bytearray(json.dumps(parsed_data, indent=4).encode('utf-8')))
         return parsed_data
 
 
-# dir_name = 'НУТЭП - ноябрь/ADMIRAL/csv/'
-# input_file_path = 'ADMIRAL SUN от 11.11.21.XLS.csv'
 input_file_path = os.path.abspath(sys.argv[1])
 output_folder = sys.argv[2]
+# input_file_path = '/home/timur/Anton_project/import_xls-master/НУТЭП/cosco/done/2022.05 CONTSHIP RUN от 03.05.22.xls.csv'
+# output_folder = '/home/timur/Anton_project/import_xls-master/НУТЭП/cosco/json'
 basename = os.path.basename(input_file_path)
 output_file_path = os.path.join(output_folder, basename+'.json')
 print("output_file_path is {}".format(output_file_path))
