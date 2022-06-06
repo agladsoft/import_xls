@@ -49,40 +49,14 @@ do
       echo "ERROR during convertion ${file} to csv!"
       continue
     fi
-
-    python3 ../scripts_for_bash/from_raw_csv_to_right_csv.py "${csv_name}" "${json_path}"
-
   elif [[ ${mime_type} = "application/vnd.ms-excel" ]]
   then
     echo "Will convert XLS '${file}' to CSV '${csv_name}'"
     in2csv -f xls "${file}" > "${csv_name}"
-
-    if [ $? -eq 0 ]
-    then
-      mv "${file}" "${done_path}"
-    else
-      mv "${file}" "${xls_path}/error_$(basename "${file}")"
-      echo "ERROR during convertion ${file} to csv!"
-      continue
-    fi
-
-    python3 ../scripts_for_bash/lider_line.py "${csv_name}" "${json_path}"
-
   elif [[ ${mime_type} = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ]]
   then
     echo "Will convert XLSX or XLSM '${file}' to CSV '${csv_name}'"
     in2csv -f xlsx "${file}" > "${csv_name}"
-
-    if [ $? -eq 0 ]
-    then
-      mv "${file}" "${done_path}"
-    else
-      mv "${file}" "${xls_path}/error_$(basename "${file}")"
-      echo "ERROR during convertion ${file} to csv!"
-      continue
-    fi
-
-    python3 ../scripts_for_bash/lider_line.py "${csv_name}" "${json_path}"
 
   else
     echo "ERROR: unsupported format ${mime_type}"
@@ -90,20 +64,18 @@ do
     continue
   fi
 
-#  if [ $? -eq 0 ]
-#	then
-#	  mv "${file}" "${done_path}"
-#	else
-#	  mv "${file}" "${fail_path}"
-#	  echo "ERROR during convertion ${file} to csv!"
-#	  continue
-#	fi
-#
-#	# Will convert csv to json
-#	python3 ../scripts_for_bash/from_raw_csv_to_right_csv.py "${csv_name}" "${json_path}"
-#	python3 ../scripts_for_bash/lider_line.py "${csv_name}" "${json_path}"
-
   if [ $? -eq 0 ]
+	then
+	  mv "${file}" "${done_path}"
+	else
+	  echo "ERROR during convertion ${file} to csv!"
+	  mv "${file}" "${xls_path}/error_$(basename "${file}")"
+	  continue
+	fi
+
+	python ../scripts_for_bash_with_inheritance/lider_line.py "${csv_name}" "${json_path}"
+
+	if [ $? -eq 0 ]
 	then
 	  mv "${csv_name}" "${done_path}"
 	else
