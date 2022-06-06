@@ -1,6 +1,6 @@
 echo ${XL_IDP_ROOT}
-#xls_path="${XL_IDP_ROOT}/reference_is_empty/"
-xls_path=/home/timur/Anton_project/import_xls-master/НУТЭП/reference_goods_is_empty
+xls_path="${XL_IDP_ROOT}/reference_is_empty/"
+#xls_path=/home/timur/Anton_project/import_xls-master/НУТЭП/reference_goods_is_empty
 echo $xls_path
 
 mkdir "${xls_path}"/csv
