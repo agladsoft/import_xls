@@ -73,7 +73,7 @@ do
 	  continue
 	fi
 
-	python ../scripts_for_bash_with_inheritance/lider_line.py "${csv_name}" "${json_path}"
+	python3 ../scripts_for_bash_with_inheritance/lider_line.py "${csv_name}" "${json_path}"
 
 	if [ $? -eq 0 ]
 	then
