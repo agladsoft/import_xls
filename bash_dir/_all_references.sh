@@ -5,3 +5,4 @@
 ./reference_region.sh
 ./reference_statistics.sh
 ./reference_ship.sh
+./reference_is_empty.sh
