@@ -1,5 +1,6 @@
 echo ${XL_IDP_ROOT}
 xls_path="${XL_IDP_ROOT}/reference_container_type/"
+#xls_path="/home/timur/Anton_project/import_xls-master/reference_container_type/"
 echo $xls_path
 
 mkdir "${xls_path}"
@@ -15,7 +16,7 @@ do
     csv_name="${xls_path}/csv/$(basename "${file}").csv"
     echo "Will convert Excel '${file}' to CSV '${csv_name}'"
     in2csv "${file}" > "${csv_name}"
-    python3 ../scripts_for_bash/reference_container_type.py "${csv_name}" "${xls_path}"/json
+    python3 ../scripts_for_bash_with_inheritance/reference_container_type.py "${csv_name}" "${xls_path}"/json
 
     mv "${file}" "${done_path}"
     mv "${csv_name}" "${done_path}"

@@ -61,7 +61,7 @@ do
 	fi
 
 	# Will convert csv to json
-	python3 ../scripts_for_bash/akkon_lines.py "${csv_name}" "${json_path}"
+	python3 ../scripts_for_bash_with_inheritance/akkon_lines.py "${csv_name}" "${json_path}"
 
   if [ $? -eq 0 ]
 	then

@@ -1,7 +1,7 @@
 #!/bin/bash
 echo ${XL_IDP_ROOT}
 xls_path="${XL_IDP_ROOT}/lines_${XL_IMPORT_TERMINAL}/cosco/"
-#xls_path=/home/timur/Anton_project/import_xls-master/НУТЭП\ -\ ноябрь/COSCO
+#xls_path=/home/timur/Anton_project/import_xls-master/НУТЭП/cosco
 echo "$xls_path"
 csv_path="${xls_path}"/csv
 if [ ! -d "$csv_path" ]; then
@@ -61,7 +61,7 @@ do
 	fi
 
 	# Will convert csv to json
-	python3 ../scripts_for_bash/cosco.py "${csv_name}" "${json_path}"
+	python3 ../scripts_for_bash_with_inheritance/cosco.py "${csv_name}" "${json_path}"
 
   if [ $? -eq 0 ]
 	then

@@ -1,7 +1,7 @@
 #!/bin/bash
 echo ${XL_IDP_ROOT}
 xls_path="${XL_IDP_ROOT}/lines_${XL_IMPORT_TERMINAL}/admiral/"
-#xls_path=/home/timur/Anton_project/import_xls-master/НУТЭП\ -\ ноябрь/ADMIRAL
+#xls_path=/home/timur/Anton_project/import_xls-master/НУТЭП/admiral
 echo "$xls_path"
 csv_path="${xls_path}"/csv
 if [ ! -d "$csv_path" ]; then
@@ -61,7 +61,7 @@ do
 	fi
 
 	# Will convert csv to json
-	python3 ../scripts_for_bash/admiral.py "${csv_name}" "${json_path}"
+	python3 ../scripts_for_bash_with_inheritance/admiral.py "${csv_name}" "${json_path}"
 
   if [ $? -eq 0 ]
 	then
